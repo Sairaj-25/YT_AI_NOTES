@@ -9,7 +9,7 @@ class User(Base):
     name = Column(String, unique=True, index=True)
     password = Column(String)
 
-    # one-to-many relationship: A user can save mjultiple questons
+    # one-to-many relationship: A user can save multiple notes
     notes = relationship("Notes", back_populates="owner")
 
 
