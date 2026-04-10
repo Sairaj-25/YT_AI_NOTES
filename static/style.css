@@ -1,0 +1,5 @@
+/* Custom HTMX Loading State Styles */
+#loadingState.htmx-request { display: flex !important; }
+.htmx-request #generateBtn { opacity: 0.7; pointer-events: none; }
+.htmx-request #btnText { display: none; }
+.htmx-request #btnSpinner { display: inline-block !important; }

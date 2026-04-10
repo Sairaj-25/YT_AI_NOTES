@@ -1,0 +1,29 @@
+<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm mt-8 animate-fade-in-up">
+    <div class="flex items-start">
+        <div class="flex-shrink-0 mt-0.5">
+            <i class="fa-solid fa-circle-exclamation text-red-500 text-lg"></i>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-semibold text-red-800">
+                Generation Failed
+            </h3>
+            <div class="mt-1 text-sm text-red-700">
+                <p>{{ error }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    setTimeout(() => {
+        const generateBtn = document.getElementById('generateBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        
+        generateBtn.disabled = false;
+        generateBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        btnText.style.display = 'inline-block';
+        btnSpinner.classList.add('hidden');
+        btnSpinner.style.display = 'none';
+    }, 50);
+</script>
