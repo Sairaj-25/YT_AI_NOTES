@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "YT_AI_NOTES"
     DEBUG: bool
 
+
     WHISPER_MODEL_SIZE: str
     WHISPER_DEVICE: str
 
