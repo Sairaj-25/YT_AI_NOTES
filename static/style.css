@@ -3,3 +3,58 @@
 .htmx-request #generateBtn { opacity: 0.7; pointer-events: none; }
 .htmx-request #btnText { display: none; }
 .htmx-request #btnSpinner { display: inline-block !important; }
+
+
+:root {
+  --cyan: #00f5ff;
+}
+.text-cyan { color: var(--cyan) !important; }
+
+
+/* signin_page */
+
+    .auth-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 140px); /* Adjusts for nav and footer */
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+    }
+    /* Simple styling to make Bootstrap inputs match your dark theme */
+    .sf-input {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border, #333);
+      color: #fff;
+    }
+    .sf-input:focus {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: #0dcaf0; /* Match text-cyan */
+      box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+      color: #fff;
+    }
+
+  # signin and signup
+  
+  body {
+    background-color: #f8f9fa;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+  .error-field {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+  }
+  .htmx-indicator {
+      display: none;
+  }
+  .htmx-request .htmx-indicator {
+      display: inline-block;
+  }
+  .htmx-request.htmx-indicator {
+      display: inline-block;
+  }

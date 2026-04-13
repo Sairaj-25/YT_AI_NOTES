@@ -39,13 +39,8 @@
                     </span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    {% if user.is_authenticated %}
-                        <span class="text-sm text-slate-600 hidden sm:inline-block">Welcome, <span class="font-semibold text-slate-900">{{ user.username }}</span></span>
-                        <a href="{% url 'logout' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Log out</a>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Log in</a>
-                        <a href="{% url 'signup' %}" class="text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-full shadow-sm transition-all hover:shadow-md">Sign up</a>
-                    {% endif %}
+                        <span class="text-sm text-slate-600 hidden sm:inline-block">{user.username} <span class="font-semibold text-slate-900">{{ user.username }}</span></span>
+                        <a href="/logout" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Logout</a>
                 </div>
             </div>
         </div>
@@ -65,12 +60,12 @@
             <div class="max-w-2xl mx-auto relative group">
                 <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
                 
-                <form hx-post="{% url 'generate-blog' %}" 
+                <form hx-post="#" 
                       hx-target="#resultContainer" 
                       hx-indicator="#loadingState"
                       class="relative bg-white rounded-2xl shadow-xl flex items-center p-2 border border-slate-200">
                     
-                    {% csrf_token %} <div class="pl-4 pr-2 text-slate-400">
+                    <div class="pl-4 pr-2 text-slate-400">
                         <i class="fa-brands fa-youtube text-xl"></i>
                     </div>
                     <input name="link" type="url" required placeholder="https://www.youtube.com/watch?v=..." 
