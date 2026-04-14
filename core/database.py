@@ -28,8 +28,8 @@ Base = declarative_base()
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSession() as Session:
+    async with AsyncSessionLocal() as session:
         try:
-            yield Session
+            yield session
         finally:
-            await Session.close()
+            await session.close()
