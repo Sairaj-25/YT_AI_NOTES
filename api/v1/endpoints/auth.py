@@ -9,20 +9,17 @@ from services.auth_service import create_user, authenticate_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 @router.post("/register")
 async def register(
     request: Request,
     name: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     try:
-        user_data = UserCreate(
-            name=name,
-            email=email,
-            password=password
-        )
+        user_data = UserCreate(name=name, email=email, password=password)
 
         # create user in DB
         user = await create_user(db, user_data)
@@ -47,13 +44,14 @@ async def register(
             """,
             status_code=200,
         )
-        
+
     except HTTPException as e:
         return HTMLResponse(
             content=f'<div class="text-danger">{e.detail}</div>',
             status_code=e.status_code,
         )
-    
+
+
 @router.post("/login")
 async def login(
     request: Request,
@@ -86,10 +84,10 @@ async def login(
             """,
             status_code=200,
         )
-    
+
     except HTTPException:
         return HTMLResponse(
-            content=f"""
+            content="""
             <div class="text-danger">Invalid email or password.</div>
             <script>
                 document.querySelectorAll('.sf-input').forEach(el => el.classList.add('error-field'));
@@ -97,7 +95,7 @@ async def login(
             """,
             status_code=401,
         )
-    
+
     except Exception as e:
         return HTMLResponse(
             content=f"""

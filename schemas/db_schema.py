@@ -3,19 +3,19 @@ from typing import List
 
 # user schemas
 
-class UserCreate(BaseModel):
 
+class UserCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
 
-class UserLogin(BaseModel):
 
+class UserLogin(BaseModel):
     username: EmailStr
     password: str
 
-class NoteCreate(BaseModel):
 
+class NoteCreate(BaseModel):
     id: int
     youtube_link: str
     content: str
@@ -24,8 +24,10 @@ class NoteCreate(BaseModel):
     class Config:
         from_attributes = True
 
+
 class NoteResponse(BaseModel):
     """Schema for returning question data"""
+
     id: int
     youtube_link: str
     content: str
@@ -34,12 +36,14 @@ class NoteResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class UserWithNotes(BaseModel):
     """Schema for user with their saved notes"""
+
     id: int
     email: EmailStr
     name: str
-    notes:List[NoteResponse]
+    notes: List[NoteResponse]
 
     class Config:
         from_attributes = True

@@ -8,9 +8,7 @@ settings = get_settings()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SQLALCHEMY_DATABASE_URL = (
-    settings.DATABASE_URL
-)
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
