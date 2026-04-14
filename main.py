@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from core.database import engine, Base
 from contextlib import asynccontextmanager
+from api.v1.endpoints.auth import router
 
 
 # Logging 
@@ -57,8 +58,32 @@ app.mount(
 # templates
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-def main():
-    print("Hello from yt-ai-notes!")
+# Router
+app.include_router(router, prefix="/api/v1")
+
+# Frontend Route
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    return templates.TemplateResponse(request, "index.html", {"user":user})
+
+@app.get("/login", response_class= HTMLResponse, name="signin_page")
+async def login_page(request: Request):
+    user = request.session.get("user")
+    return templates.TemplateResponse(request, "signin.html", {"user": user})
+
+@app.get("/register", response_class=HTMLResponse, name="signup_page")
+async def register_page(request: Request):
+    user = request.session.get("user")
+    return templates.TemplateResponse(request, "signup.html", {"user": user})
+
+@app.get("/logout", name="logout")
+async def logout(request: Request):
+    request.session.pop("user", None)
+    return RedirectResponse(url="/", status_code=303)
 
 
 if __name__ == "__main__":
