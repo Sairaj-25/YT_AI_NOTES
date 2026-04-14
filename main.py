@@ -11,12 +11,13 @@ from contextlib import asynccontextmanager
 from api.v1.endpoints.auth import router
 
 
-# Logging 
+# Logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("YT_AI_NOTES")
+
 
 # create a lifespan function to handle DB initialization
 @asynccontextmanager
@@ -30,8 +31,8 @@ async def lifespan(app: FastAPI):
 
 # APP
 app = FastAPI(
-    title = "YT_AI_NOTES API",
-    description = "AI-powered Notes creation",
+    title="YT_AI_NOTES API",
+    description="AI-powered Notes creation",
     lifespan=lifespan,
 )
 
@@ -51,7 +52,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # static files
 app.mount(
     "/static/",
-    StaticFiles(directory=str(BASE_DIR/ "static")),
+    StaticFiles(directory=str(BASE_DIR / "static")),
     name="static",
 )
 
@@ -63,22 +64,26 @@ app.include_router(router, prefix="/api/v1")
 
 # Frontend Route
 
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     user = request.session.get("user")
     if not user:
         return RedirectResponse(url="/login", status_code=303)
-    return templates.TemplateResponse(request, "index.html", {"user":user})
+    return templates.TemplateResponse(request, "index.html", {"user": user})
 
-@app.get("/login", response_class= HTMLResponse, name="signin_page")
+
+@app.get("/login", response_class=HTMLResponse, name="signin_page")
 async def login_page(request: Request):
     user = request.session.get("user")
     return templates.TemplateResponse(request, "signin.html", {"user": user})
+
 
 @app.get("/register", response_class=HTMLResponse, name="signup_page")
 async def register_page(request: Request):
     user = request.session.get("user")
     return templates.TemplateResponse(request, "signup.html", {"user": user})
+
 
 @app.get("/logout", name="logout")
 async def logout(request: Request):
