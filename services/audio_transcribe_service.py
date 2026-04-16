@@ -2,25 +2,35 @@ import logging
 import os
 import tempfile
 
-from faster_whisper import WhisperModel
+from faster_whisper import WhisperModel, BatchedInferencePipeline
 from pydub import AudioSegment
 
 logger = logging.getLogger(__name__)
 
 # Singleton Model (Load model once)
 
-_model: WhisperModel | None = None
+model: WhisperModel | None = None
+batched_model: BatchedInferencePipeline | None = None
 
-def get_model() -> WhisperModel:
-    global _model
-    if _model is None:
-        _model = WhisperModel(
-            "small",
+
+def getmodel() -> BatchedInferencePipeline:
+    global model, batched_model
+    if batched_model is None:
+        # 1. Load the base model first
+        model = WhisperModel(
+            model_size_or_path="base",
             device="cpu",
-            compute_type="int8"
+            compute_type="int8",
+            cpu_threads=4,
         )
-        logger.info("WhisperModel loaded.")
-    return _model
+
+        # 2. Wrap it in the batched pipeline AFTER it is loaded
+        batched_model = BatchedInferencePipeline(model=model)
+
+        logger.info("default WhisperModel loaded.")
+
+    return batched_model
+
 
 def transcribe_audio_whisper(file_path: str) -> str:
     tmp_path: str | None = None
@@ -28,23 +38,29 @@ def transcribe_audio_whisper(file_path: str) -> str:
     try:
         if not os.path.exists(file_path):
             return "Transcription Failed: File not found"
-        
-        #1. Load Audio File
+
+        # 1. Load Audio File
         audio = AudioSegment.from_file(file_path)
 
-        #2. Normalize for Whisper
+        # 2. Normalize for Whisper
         audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
 
-        #3. Convert to temp WAV (required)
+        # 3. Convert to temp WAV (required)
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             audio.export(tmp.name, format="wav")
             tmp_path = tmp.name
 
-        #4. Transcribe
-        model = get_model()
-        segments, info = model.transcribe(tmp_path, beam_size=5)
+        # initialiazed the model
+        batchedmodel = getmodel()
 
-        transcript = " ".join(seg.text for seg in segments).strip()
+        # 4. Transcribe
+
+        # Transcribe with batching and VAD enabled
+        segments, info = batchedmodel.transcribe(
+            tmp_path, batch_size=16, vad_filter=True, beam_size=5
+        )
+
+        transcript = " ".join([segment.text for segment in segments])
 
         logger.info(
             "Transcribed %.1f sec audio -> %d chars",
@@ -52,13 +68,12 @@ def transcribe_audio_whisper(file_path: str) -> str:
             len(transcript),
         )
 
-        return transcript or "No speech detected"
-    
+        return transcript
+
     except Exception as e:
         logger.error(f"Transcription error: {e}", exc_info=True)
         return f"Transcription Failed: {e}"
-    
+
     finally:
         if tmp_path and os.path.exists(tmp_path):
             os.unlink(tmp_path)
-        

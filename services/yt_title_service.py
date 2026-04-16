@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_yt_title(link: str) -> str | None:
     try:
         with YoutubeDL() as ydl:

@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, Request, File, UploadFile, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends
 from pathlib import Path
 import logging
 from fastapi.responses import HTMLResponse
@@ -24,69 +24,54 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # def login_required()
 
-@router.post("/generate")
+
+@router.post(
+    "/generate", response_class=HTMLResponse
+)  # api/v1/note/genearte -> for apirouter prefix is set to /note
 async def generate_note(
     request: Request,
     link: str = Form(...),
-    audio_file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     # user=Depends(login_required),
 ):
-    audio_bytes = await audio_file.read()
-    logger.info(
-        "Received audio upaload: %s bytes, link=%s", len(audio_bytes)
-    )  
+    logger.info("Received audio upaload: link=%s", link)
     # 1. Validate Request
     if not link:
-        return HTMLResponse(
-            "<div class='text-danger'>Youtube link is required.</div>"
-        )
-    
-    
+        return HTMLResponse("<div class='text-danger'>Youtube link is required.</div>")
+
     # 2. Get title
     title = get_yt_title(link)
     if not title:
         return HTMLResponse(
             "<div class='text-danger'>Failed to fetch YouTube title.</div>"
         )
-    
+
     # 3. Download audio
     file_path = download_audio(link)
     if not file_path:
-        return HTMLResponse(
-            "<div class='text-danger'>Failed to download audio.</div>"
-        )
-    
+        return HTMLResponse("<div class='text-danger'>Failed to download audio.</div>")
+
     loop = asyncio.get_running_loop()
-    
+
     # 4. transcribe
     transcription: str = await loop.run_in_executor(
         None, transcribe_audio_whisper, file_path
     )
     if not transcription or "Failed" in transcription:
-        return HTMLResponse(
-            "<div class='text-danger'>Failed to get transcript.</div>"
-        )
+        return HTMLResponse("<div class='text-danger'>Failed to get transcript.</div>")
 
-    
     # 5. Generate Note
     note_content = generate_note_from_transcription(transcription)
     if not note_content or "error" in note_content.lower():
-        return HTMLResponse(
-            f"<div class='text-danger'>{note_content}</div>"
-        )
-    
+        return HTMLResponse(f"<div class='text-danger'>{note_content}</div>")
+
     # 6. Save to db
-    note = Notes(
-        youtube_link = link,
-        title = title,
-        content = note_content
-    )
+    note = Notes(youtube_link=link, title=title, content=note_content)
 
     db.add(note)
     await db.commit()
     await db.refresh(note)
 
-    return templates.TemplateResponse(request, "index.html", {"note_content": note_content})
-
-    
+    return templates.TemplateResponse(
+        request, "partials/blog_result.html", {"note_content": note_content}
+    )
