@@ -8,16 +8,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     APP_NAME: str = "YT_AI_NOTES"
-    DEBUG: bool
+    DEBUG: bool = False
 
-    WHISPER_MODEL_SIZE: str
-    WHISPER_DEVICE: str
+    WHISPER_MODEL_SIZE: str = "base"
+    WHISPER_DEVICE: str = "cpu"
 
-    WHISPER_COMPUTE_TYPE: str
+    WHISPER_COMPUTE_TYPE: str = "int8"
 
-    DATABASE_URL: str
+    DATABASE_URL: str = ""
 
-    GEMINI_API_KEY: str
+    GEMINI_API_KEY: str = ""
 
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
