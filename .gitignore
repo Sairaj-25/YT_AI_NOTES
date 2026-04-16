@@ -1,6 +1,6 @@
 .venv/
 .git/
-
+.cursor
 .env
 
 __pycache__/
