@@ -27,7 +27,7 @@ def download_audio(link: str) -> str | None:
             info = ydl.extract_info(link, download=True)
             mp3_path = os.path.splitext(ydl.prepare_filename(info))[0] + ".mp3"
             return mp3_path
-        
+
     except Exception as e:
         logger.error(f"Audio download error: {e}")
         return None

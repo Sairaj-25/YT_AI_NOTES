@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from core.database import engine, Base
 from contextlib import asynccontextmanager
-from api.v1.endpoints.auth import router
+from api.v1.router import router
 
 
 # Logging

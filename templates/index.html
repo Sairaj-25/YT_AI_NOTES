@@ -24,6 +24,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style href="/static/style.css"></style>
+    <style>
+        /* Custom HTMX Loading State Styles */
+        #loadingState.htmx-request { display: flex !important; }
+        .htmx-request #generateBtn { opacity: 0.7; pointer-events: none; }
+        .htmx-request #btnText { display: none; }
+        .htmx-request #btnSpinner { display: inline-block !important; }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-primary-100 selection:text-primary-700">
 
@@ -60,7 +67,7 @@
             <div class="max-w-2xl mx-auto relative group">
                 <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
                 
-                <form hx-post="api/v1/generate_note/generate" 
+                <form hx-post="api/v1/note/generate" 
                       hx-target="#resultContainer" 
                       hx-indicator="#loadingState"
                       class="relative bg-white rounded-2xl shadow-xl flex items-center p-2 border border-slate-200">
@@ -96,7 +103,7 @@
     <footer class="bg-white border-t border-slate-200 mt-auto">
         <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500">
             <p>&copy; 2026 YT-AI-Blog. All rights reserved.</p>
-            <p>Powered by Django, Gemini AI, HTMX & Faster-Whisper.</p>
+            <p>Powered by Fastapi, Gemini AI, HTMX & Faster-Whisper.</p>
         </div>
     </footer>
 
