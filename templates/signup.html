@@ -3,69 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - My App</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <style src="../static/style.css"></style>
+    <title>Register — YT-AI-NOTE</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/style.css">
 </head>
-<body>
+<body style="height:100vh;overflow:hidden">
 
-    <div id="register-response" class="mt-2 text-danger" style="font-size: 0.9rem; text-align: center;"></div>
+    <div class="bg-mesh" aria-hidden="true"></div>
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                
-                <div class="text-center mt-md-5">
-                    <h2 class="fw-bold">Create an Account</h2>
+    <nav aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="/" class="logo" aria-label="YT-AI-Blog home">
+                <div class="logo-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <span class="logo-text">YT<span>-AI-</span>NOTE</span>
+            </a>
+            <a href="/login" class="btn-nav-ghost">Sign In</a>
+        </div>
+    </nav>
+
+    <main class="auth-main">
+        <div class="auth-wrapper">
+            <div class="auth-card" role="region" aria-label="Registration form">
+
+                <div class="auth-header">
+                    
+                    <h1 class="auth-title">Create Your Account </h1>
                 </div>
 
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-2 p-md-5">
-                        
-                        <form hx-post="/api/v1/auth/register" hx-target="#register-response" hx-swap="innerHTML"  hx-indicator="#reg-spinner">
-                            <div class="mb-3">
-                                <label for="registerName" class="form-label fw-semibold">Full Name</label>
-                                <input type="text" class="form-control sf-input" id="registerName" name="name" placeholder="John Doe" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="registerEmail" class="form-label fw-semibold">Email address</label>
-                                <input type="email" class="form-control sf-input" id="registerEmail" name="email" placeholder="name@example.com" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="registerPassword" class="form-label fw-semibold">Password</label>
-                                <input type="password" class="form-control sf-input" id="registerPassword" name="password" placeholder="********" required minlength="6">
-                            </div>
+                <div id="register-response" class="auth-error" role="alert" aria-live="polite"></div>
 
+                <form class="auth-form" hx-post="/api/v1/auth/register" hx-target="#register-response" hx-swap="innerHTML" hx-indicator="#reg-spinner">
 
-                            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
-                                Create Account
-                                <span class="spinner-border spinner-border-sm htmx-indicator ms-2" role="status" aria-hidden="true"></span>
-                            </button>
-                        </form>
-
+                    <div class="auth-field">
+                        <label for="registerName" class="auth-label">Full Name</label>
+                        <input type="text" class="auth-input" id="registerName" name="name" placeholder="John Doe" required autocomplete="name">
                     </div>
-                </div>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted">Already have an account? <a href="/login" class="text-decoration-none fw-semibold">Log in here</a></p>
+                    <div class="auth-field">
+                        <label for="registerEmail" class="auth-label">Email</label>
+                        <input type="email" class="auth-input" id="registerEmail" name="email" placeholder="you@example.com" required autocomplete="email" spellcheck="false">
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="registerPassword" class="auth-label">Password</label>
+                        <div class="auth-input-wrap">
+                            <input type="password" class="auth-input" id="registerPassword" name="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
+                            <button type="button" class="auth-toggle-pw" data-target="registerPassword" aria-label="Toggle password"><i class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="registerConfirm" class="auth-label">Confirm Password</label>
+                        <div class="auth-input-wrap">
+                            <input type="password" class="auth-input" id="registerConfirm" name="confirm_password" placeholder="Repeat your password" required minlength="6" autocomplete="new-password">
+                            <button type="button" class="auth-toggle-pw" data-target="registerConfirm" aria-label="Toggle password"><i class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-auth-primary">
+                        <span class="btn-auth-text">Create Account</span>
+                        <i class="fa-solid fa-spinner fa-spin htmx-indicator" id="reg-spinner" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <span class="auth-footer-text">Already have an account?</span>
+                    <a href="/login" class="auth-footer-link">Sign in here</a>
                 </div>
 
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="auth-footer-bar"><p>&copy; 2026 YT-AI-Blog. All rights reserved.</p></footer>
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        document.body.addEventListener('input', function(evt) {
-            if (evt.target.classList.contains('sf-input')) {
-                evt.target.classList.remove('error-field');
-                const responseDiv = document.getElementById('register-response');
-                if (responseDiv) responseDiv.innerHTML = '';
+        document.body.addEventListener('input', function(e) {
+            if (e.target.classList.contains('auth-input')) {
+                e.target.classList.remove('error-field');
+                var el = document.getElementById('register-response');
+                if (el) el.innerHTML = '';
             }
+        });
+        document.querySelectorAll('.auth-toggle-pw').forEach(function(b) {
+            b.addEventListener('click', function() {
+                var t = document.getElementById(this.dataset.target), i = this.querySelector('i');
+                t.type = t.type === 'password' ? 'text' : 'password';
+                i.classList.toggle('fa-eye'); i.classList.toggle('fa-eye-slash');
+            });
         });
     </script>
 </body>
