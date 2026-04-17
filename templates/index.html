@@ -3,107 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YT-AI-Blog | Smart Video Notes</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
-                    }
-                }
-            }
-        }
+
+    <!-- SEO Meta Tags -->
+    <title>YT-AI-Blog — Turn YouTube Videos into Smart AI Notes Instantly</title>
+    <meta name="description" content="Paste a YouTube link to auto-transcribe audio and generate AI-powered notes or study guides in seconds. Free AI note generator for students and professionals.">
+    <meta name="keywords" content="YouTube notes generator, AI study guide, YouTube transcription, AI note taking, video to notes, YouTube to text, AI learning tool">
+    <meta name="author" content="YT-AI-Blog">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="YT-AI-Blog — Turn YouTube Videos into Smart AI Notes">
+    <meta property="og:description" content="Paste a YouTube link to auto-transcribe audio and generate AI-powered notes or study guides in seconds.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yt-ai-blog.com">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="YT-AI-Blog — Smart AI Notes from YouTube">
+    <meta name="twitter:description" content="Auto-transcribe YouTube videos and generate structured notes with AI. Works in seconds.">
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "YT-AI-Blog",
+      "description": "AI-powered YouTube video to notes converter. Paste a link, get structured study notes instantly.",
+      "applicationCategory": "EducationApplication",
+      "operatingSystem": "Web"
+    }
     </script>
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <!-- style.css -->
+    <link rel="stylesheet" href="../static/style.css">
     
+    <!-- Favicon -->
+    
+
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Dependencies -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style href="/static/style.css"></style>
-    <style>
-        /* Custom HTMX Loading State Styles */
-        #loadingState.htmx-request { display: flex !important; }
-        .htmx-request #generateBtn { opacity: 0.7; pointer-events: none; }
-        .htmx-request #btnText { display: none; }
-        .htmx-request #btnSpinner { display: inline-block !important; }
-    </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-primary-100 selection:text-primary-700">
+<body>
 
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-2">
-                    <div class="bg-primary-600 text-white p-2 rounded-lg">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600">
-                        YT-AI-Blog
-                    </span>
+    <div class="bg-mesh" aria-hidden="true"></div>
+
+    <!-- ── Navigation ─────────────────────────────────── -->
+    <nav aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="/" class="logo" aria-label="YT-AI-Blog home">
+                <div class="logo-icon" aria-hidden="true">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
-                <div class="flex items-center space-x-4">
-                        <span class="text-sm text-slate-600 hidden sm:inline-block">{user.username} <span class="font-semibold text-slate-900">{{ user.username }}</span></span>
-                        <a href="/logout" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Logout</a>
-                </div>
+                <span class="logo-text">YT<span>-AI-</span>Blog</span>
+            </a>
+            <div class="nav-right">
+                <span class="nav-user">
+                    {{ user.name }} <strong>{{ user.username }}</strong>
+                </span>
+                <a href="/logout" class="btn-logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                    Logout
+                </a>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow flex flex-col items-center pt-16 pb-12 px-4 sm:px-6">
-        
-        <div class="text-center max-w-3xl mx-auto mb-12 animate-fade-in-up">
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6">
-                Youtube - AI Notes <br class="hidden sm:block"/> 
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Smart Actionable Notes</span>
+    <!-- ── Main Content ────────────────────────────────── -->
+    <main>
+
+        <!-- Hero -->
+        <section class="hero" aria-labelledby="hero-heading">
+            <div class="badge" aria-label="Powered by AI">
+                <i class="fa-solid fa-circle" aria-hidden="true"></i>
+                AI-Powered Note Generator
+            </div>
+
+            <h1 id="hero-heading">
+                YouTube Videos →<br>
+                <span class="accent-gradient">Smart AI Notes</span>
             </h1>
-            <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-                Paste any YouTube link below. Our AI will automatically extract the audio, transcribe the speech, and generate a perfectly formatted blog post or study guide in seconds.
+
+            <p class="hero-desc">
+                Paste a YouTube link to auto-transcribe audio and generate
+                AI-powered notes or study guides in seconds.
             </p>
+        </section>
 
-            <div class="max-w-2xl mx-auto relative group">
-                <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
-                
-                <form hx-post="api/v1/note/generate" 
-                      hx-target="#resultContainer" 
-                      hx-indicator="#loadingState"
-                      class="relative bg-white rounded-2xl shadow-xl flex items-center p-2 border border-slate-200">
-                    
-                    <div class="pl-4 pr-2 text-slate-400">
-                        <i class="fa-brands fa-youtube text-xl"></i>
+        <!-- Input Form -->
+        <div class="input-wrapper">
+            <form hx-post="api/v1/note/generate"
+                  hx-target="#resultContainer"
+                  hx-indicator="#loadingState"
+                  aria-label="YouTube link input form">
+
+                <div class="input-card" role="search">
+                    <div class="input-yt-icon" aria-hidden="true">
+                        <i class="fa-brands fa-youtube"></i>
                     </div>
-                    <input name="link" type="url" required placeholder="https://www.youtube.com/watch?v=..." 
-                        class="flex-grow bg-transparent border-none outline-none text-slate-700 py-3 px-2 w-full placeholder-slate-400 focus:ring-0">
-                    
-                    <button id="generateBtn" type="submit" class="bg-slate-900 text-white font-medium rounded-xl px-6 py-3 hover:bg-primary-600 transition-all shadow-sm flex items-center gap-2 flex-shrink-0">
-                        <span id="btnText">Generate</span>
-                        <i id="btnSpinner" class="fa-solid fa-spinner fa-spin hidden"></i>
-                        <i class="fa-solid fa-arrow-right" id="btnIcon"></i>
+
+                    <input
+                        name="link"
+                        type="url"
+                        required
+                        class="url-input"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        aria-label="YouTube video URL"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+
+                    <button id="generateBtn" type="submit" class="btn-generate" aria-label="Generate notes">
+                        <span id="btnText">Generate Notes</span>
+                        <i id="btnSpinner" class="fa-solid fa-spinner fa-spin" style="display:none" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-right" id="btnIcon" aria-hidden="true"></i>
                     </button>
-                </form>
-            </div>
+                </div>
+
+                <p class="input-hint">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    Supports youtube.com and youtu.be links · Your data stays private
+                </p>
+            </form>
         </div>
 
-        <div id="loadingState" class="hidden flex-col items-center justify-center py-12">
-            <div class="relative w-20 h-20">
-                <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-primary-600 rounded-full border-t-transparent animate-spin"></div>
-            </div>
-            <h3 class="mt-6 text-lg font-medium text-slate-900">Analyzing Video Content...</h3>
-            <p class="text-slate-500 text-sm mt-1 animate-pulse">Extracting audio, transcribing, and writing your notes.</p>
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-wrap" role="status" aria-live="polite" aria-label="Generating notes">
+            <div class="spinner-ring" aria-hidden="true"></div>
+            <h3 class="loading-title">Analyzing Video Content…</h3>
+            <p class="loading-sub">Transcribing audio and writing your notes.</p>
         </div>
 
-        <div id="resultContainer" class="w-full max-w-4xl mx-auto mt-8"></div>
+        <!-- Result -->
+        <div id="resultContainer" aria-live="polite" aria-label="Generated notes output"></div>
 
     </main>
 
-    <footer class="bg-white border-t border-slate-200 mt-auto">
-        <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+    <!-- ── Footer ──────────────────────────────────────── -->
+    <footer>
+        <!-- Stats -->
+        <div class="stats" aria-label="Product statistics">
+            <div class="stat-item">
+                <div class="stat-num">10<span>x</span></div>
+                <div class="stat-label">Faster Learning</div>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat-item">
+                <div class="stat-num"><span>&lt;</span>60s</div>
+                <div class="stat-label">Generation Time</div>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat-item">
+                <div class="stat-num">99<span>%</span></div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+
+            <!-- Feature chips -->
+            <div class="features" aria-label="Features">
+                <div class="feature-chip">
+                    <div class="feature-icon" aria-hidden="true"><i class="fa-solid fa fa-message"></i></div>
+                    <div class="feature-text">
+                        <strong>Auto Transcription</strong>
+                        Powered by Faster-Whisper
+                    </div>
+                </div>
+                <div class="feature-chip">
+                    <div class="feature-icon" aria-hidden="true"><i class="fa-solid fa-brain"></i></div>
+                    <div class="feature-text">
+                        <strong>AI Summarization</strong>
+                        Gemini AI-powered notes
+                    </div>
+                </div>
+                <div class="feature-chip">
+                    <div class="feature-icon" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="feature-text">
+                        <strong>Instant Results</strong>
+                        Ready in under 60 seconds
+                    </div>
+                </div>
+            </div>
+
+        
+        <div class="footer-inner">
             <p>&copy; 2026 YT-AI-Blog. All rights reserved.</p>
-            <p>Powered by Fastapi, Gemini AI, HTMX & Faster-Whisper.</p>
+            <div class="footer-stack" aria-label="Technology stack">
+                <span class="stack-tag">FastAPI</span>
+                <span class="stack-tag">Gemini AI</span>
+                <span class="stack-tag">HTMX</span>
+                <span class="stack-tag">Faster-Whisper</span>
+            </div>
         </div>
     </footer>
 
