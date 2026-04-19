@@ -3,207 +3,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- SEO Meta Tags -->
     <title>YT-AI-Note — Turn YouTube Videos into Smart AI Notes Instantly</title>
-    <meta name="description" content="Paste a YouTube link to auto-transcribe audio and generate AI-powered notes or study guides in seconds. Free AI note generator for students and professionals.">
-    <meta name="keywords" content="YouTube notes generator, AI study guide, YouTube transcription, AI note taking, video to notes, YouTube to text, AI learning tool">
-    <meta name="author" content="YT-AI-NOTE">
+    <meta name="description" content="Paste a YouTube link to auto-transcribe audio and generate AI-powered notes or study guides in seconds.">
     <meta name="robots" content="index, follow">
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="YT-AI-NOTE — Turn YouTube Videos into Smart AI Notes">
-    <meta property="og:description" content="Paste a YouTube link to auto-transcribe audio and generate AI-powered notes or study guides in seconds.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://yt-ai-blog.com">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="YT-AI-NOTE — Smart AI Notes from YouTube">
-    <meta name="twitter:description" content="Auto-transcribe YouTube videos and generate structured notes with AI. Works in seconds.">
-
-    <!-- Schema.org Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "YT-AI-NOTE",
-      "description": "AI-powered YouTube video to notes converter. Paste a link, get structured study notes instantly.",
-      "applicationCategory": "EducationApplication",
-      "operatingSystem": "Web"
-    }
-    </script>
-
-    <!-- style.css -->
-    <link rel="stylesheet" href="../static/style.css">
-    
-    <!-- Favicon -->
-    
-
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Dependencies -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body:    ['"Instrument Sans"', 'sans-serif'],
+                        mono:    ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Keyframe Animations ─────────────────────────────── */
+        @keyframes drift1 {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(80px,60px) scale(1.1); }
+        }
+        @keyframes drift2 {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(-60px,-40px) scale(1.15); }
+        }
+        @keyframes spin    { to { transform: rotate(360deg); } }
+        @keyframes fadeUp  { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        .animate-fadeUp   { animation: fadeUp  0.7s ease both; }
+        .animate-fadeUp-2 { animation: fadeUp  0.7s 0.1s ease both; }
+        .animate-fadeUp-3 { animation: fadeUp  0.7s 0.15s ease both; }
+        .animate-fadeUp-4 { animation: fadeUp  0.7s 0.2s ease both; }
+        .animate-pulse-slow { animation: pulse 2s infinite; }
+        .animate-blink    { animation: blink  2s infinite; }
+        .animate-spin-fast { animation: spin  0.9s linear infinite; }
+
+        /* ── Noise texture overlay ───────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Mesh gradient blobs ─────────────────────────────── */
+        .bg-mesh::before {
+            content: '';
+            position: absolute;
+            width: 800px; height: 800px;
+            top: -200px; left: -200px;
+            background: radial-gradient(circle, rgba(255,59,92,0.08) 0%, transparent 60%);
+            animation: drift1 20s ease-in-out infinite alternate;
+        }
+        .bg-mesh::after {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            bottom: -100px; right: -100px;
+            background: radial-gradient(circle, rgba(255,167,35,0.06) 0%, transparent 60%);
+            animation: drift2 25s ease-in-out infinite alternate;
+        }
+
+        /* ── Spinner ring ────────────────────────────────────── */
+        .spinner-ring::before, .spinner-ring::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid transparent;
+        }
+        .spinner-ring::before { border-color: rgba(255,255,255,0.07); }
+        .spinner-ring::after  {
+            border-top-color: #ff3b5c;
+            animation: spin 0.9s linear infinite;
+            box-shadow: 0 0 20px rgba(255,59,92,0.35);
+        }
+
+        /* ── HTMX loading states ─────────────────────────────── */
+        #loadingState                           { display: none; }
+        #loadingState.htmx-request              { display: flex !important; }
+        .htmx-request #generateBtn              { opacity: 0.6; pointer-events: none; }
+        .htmx-request #btnText                  { display: none; }
+        .htmx-request #btnSpinner               { display: inline-block !important; }
+        .htmx-indicator                         { display: none !important; }
+        .htmx-request .htmx-indicator,
+        .htmx-request.htmx-indicator            { display: inline-block !important; }
+
+        /* ═══════════════════════════════════════════════════
+           Textbook / Lecture-Notes Prose Styles
+           ═══════════════════════════════════════════════════ */
+
+        /* ── Base text ───────────────────────────────────── */
+        .prose-content {
+            color: #c9c9df;
+            font-size: 0.96rem;
+            line-height: 1.85;
+        }
+
+        /* ── Chapter banner  (## Chapter · 01  Title) ───── */
+        .prose-content h2 {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            margin-top: 0;
+            margin-bottom: 2em;
+            /* yellow pill identical to reference image */
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            background: #f5c518;
+            color: #111;
+            padding: 6px 18px 6px 12px;
+            border-radius: 6px;
+            line-height: 1.4;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* ── Numbered section headings  (### 1.1 …) ─────── */
+        .prose-content h3 {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f0f0f6;
+            letter-spacing: -0.01em;
+            margin-top: 2em;
+            margin-bottom: 0.55em;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* ── h4 (rarely used, but keep styled) ──────────── */
+        .prose-content h4 {
+            font-family: 'Bricolage Grotesque', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #d8d8f0;
+            margin-top: 1.4em;
+            margin-bottom: 0.4em;
+        }
+
+        /* ── Paragraphs — indented like a textbook ───────── */
+        .prose-content p {
+            margin-bottom: 1em;
+            padding-left: 1.25em;
+        }
+        /* Don't indent if p is directly inside blockquote or li */
+        .prose-content blockquote p,
+        .prose-content li p { padding-left: 0; }
+
+        /* ── Links ───────────────────────────────────────── */
+        .prose-content a {
+            color: #ff3b5c;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,59,92,0.3);
+            transition: border-color 0.2s;
+        }
+        .prose-content a:hover { border-color: #ff3b5c; }
+
+        /* ── Inline formatting ───────────────────────────── */
+        .prose-content strong { color: #f0f0f6; font-weight: 700; }
+        .prose-content em     { font-style: italic; color: #b0b0cc; }
+
+        /* ── Lists ───────────────────────────────────────── */
+        .prose-content ul, .prose-content ol {
+            padding-left: 2.2em;
+            margin-bottom: 1em;
+        }
+        .prose-content li {
+            margin-bottom: 0.45em;
+            line-height: 1.7;
+        }
+        .prose-content ul li::marker { color: #f5c518; font-size: 1.1em; }
+        .prose-content ol li::marker { color: #f5c518; font-weight: 700; }
+
+        /* ── Blockquote (definitions / callouts) ─────────── */
+        .prose-content blockquote {
+            border-left: 3px solid #f5c518;
+            padding: 10px 18px;
+            margin: 1.4em 0;
+            background: rgba(245,197,24,0.06);
+            border-radius: 0 8px 8px 0;
+            font-style: normal;
+            color: #d4d4f0;
+        }
+
+        /* ── Inline code ─────────────────────────────────── */
+        .prose-content code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82em;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.09);
+            padding: 2px 6px;
+            border-radius: 5px;
+            color: #ffa723;
+        }
+
+        /* ── Code block ──────────────────────────────────── */
+        .prose-content pre {
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 18px 20px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+        }
+        .prose-content pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.86em;
+            color: #f0f0f6;
+        }
+
+        /* ── Images ──────────────────────────────────────── */
+        .prose-content img {
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.07);
+            width: 100%;
+        }
+
+        /* ── Horizontal rule ─────────────────────────────── */
+        .prose-content hr {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin: 2em 0;
+        }
+
+        /* ── Tables ──────────────────────────────────────── */
+        .prose-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 0.88rem;
+        }
+        .prose-content th {
+            background: rgba(245,197,24,0.08);
+            color: #f0f0f6;
+            font-weight: 700;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: left;
+        }
+        .prose-content td {
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.07);
+            color: #c9c9df;
+        }
+        .prose-content tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+        /* ── PDF print styles ────────────────────────────────── */
+        @media print {
+            body > *:not(#pdf-print-area) { display: none !important; }
+            #pdf-print-area {
+                display: block !important;
+                position: fixed;
+                inset: 0;
+                background: #fff;
+                color: #111;
+                padding: 40px 52px;
+                font-family: 'Georgia', serif;
+                font-size: 13px;
+                line-height: 1.8;
+            }
+            .pdf-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: flex-end;
+                margin-bottom: 28px;
+                padding-bottom: 14px;
+                border-bottom: 2px solid #e11d48;
+            }
+            .pdf-brand { font-family: sans-serif; font-weight: 800; font-size: 16px; color: #e11d48; }
+            .pdf-date  { font-family: sans-serif; font-size: 11px; color: #888; }
+            .pdf-footer {
+                display: flex !important;
+                justify-content: space-between;
+                margin-top: 40px;
+                padding-top: 12px;
+                border-top: 1px solid #eee;
+                font-family: sans-serif;
+                font-size: 10px;
+                color: #aaa;
+            }
+            #pdf-print-area h1 { font-size: 22px; color: #111; margin: 0 0 8px; }
+            #pdf-print-area h2 { font-size: 17px; color: #111; border-bottom: 1px solid #eee; padding-bottom: 6px; margin-top: 28px; }
+            #pdf-print-area h3 { font-size: 14px; color: #333; margin-top: 20px; }
+            #pdf-print-area p  { margin-bottom: 0.8em; color: #333; }
+            #pdf-print-area a  { color: #e11d48; text-decoration: underline; }
+            #pdf-print-area strong { color: #111; font-weight: 700; }
+            #pdf-print-area ul, #pdf-print-area ol { padding-left: 1.4em; margin-bottom: 0.8em; }
+            #pdf-print-area li { margin-bottom: 0.3em; }
+            #pdf-print-area ul li::marker { color: #e11d48; }
+            #pdf-print-area ol li::marker { color: #e11d48; font-weight: 700; }
+            #pdf-print-area blockquote {
+                border-left: 3px solid #e11d48;
+                padding: 8px 16px;
+                background: #fff5f5;
+                color: #555;
+                margin: 1em 0;
+                font-style: italic;
+                border-radius: 0 6px 6px 0;
+            }
+            #pdf-print-area code {
+                font-family: 'Courier New', monospace;
+                background: #f4f4f4;
+                padding: 1px 5px;
+                border-radius: 3px;
+                font-size: 11px;
+                color: #c0392b;
+            }
+            #pdf-print-area pre {
+                background: #f4f4f4;
+                padding: 14px 16px;
+                border-radius: 6px;
+                white-space: pre-wrap;
+                word-break: break-all;
+                font-size: 11px;
+                margin: 1em 0;
+            }
+            #pdf-print-area pre code { background: none; padding: 0; color: #333; }
+            #pdf-print-area table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 12px; }
+            #pdf-print-area th { background: #f8f8f8; border: 1px solid #ddd; padding: 8px 10px; font-weight: 700; text-align: left; }
+            #pdf-print-area td { border: 1px solid #ddd; padding: 8px 10px; }
+            #pdf-print-area hr { border: none; border-top: 1px solid #eee; margin: 1.5em 0; }
+            #pdf-print-area img { max-width: 100%; border-radius: 6px; }
+        }
+    </style>
 </head>
-<body>
 
-    <div class="bg-mesh" aria-hidden="true"></div>
+<body class="bg-[#07070d] text-[#f0f0f6] font-['Instrument_Sans'] text-base leading-relaxed
+             min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- ── Navigation ─────────────────────────────────── -->
-    <nav aria-label="Main navigation">
-        <div class="nav-inner">
-            <a href="/" class="logo" aria-label="YT-AI-Blog home">
-                <div class="logo-icon" aria-hidden="true">
+    <!-- Mesh gradient background -->
+    <div class="bg-mesh fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true"></div>
+
+    <!-- ── Navigation ────────────────────────────────────── -->
+    <nav class="sticky top-0 z-[100] bg-[#07070d]/80 backdrop-blur-xl
+                border-b border-white/[0.07]"
+         aria-label="Main navigation">
+        <div class="max-w-[1100px] mx-auto px-6 h-16 flex items-center justify-between">
+
+            <a href="/" class="flex items-center gap-2.5 no-underline" aria-label="YT-AI-Note home">
+                <div class="w-9 h-9 bg-[#ff3b5c] rounded-xl grid place-items-center text-white text-[15px]
+                            shadow-[0_0_20px_rgba(255,59,92,0.35)]" aria-hidden="true">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
-                <span class="logo-text">YT<span>-AI-</span>NOTE</span>
-            </a>
-            <div class="nav-right">
-                <span class="nav-user">
-                 <strong>{{ user.name }}</strong>
+                <span class="font-['Bricolage_Grotesque'] font-bold text-[1.2rem] text-[#f0f0f6] tracking-tight">
+                    YT<span class="text-[#ff3b5c]">-AI-</span>NOTE
                 </span>
-                <a href="/logout" class="btn-logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            </a>
+
+            <div class="flex items-center gap-5">
+                <span class="text-[0.82rem] text-[#8b8ba7]">
+                    Welcome, <strong class="text-[#f0f0f6] font-semibold">{{ user.name }}</strong>
+                </span>
+                <a href="/logout"
+                   class="text-[0.82rem] font-medium text-[#8b8ba7] no-underline px-3.5 py-1.5
+                          border border-white/[0.07] rounded-lg
+                          hover:text-[#f0f0f6] hover:border-white/[0.15] hover:bg-white/[0.04]
+                          transition-all duration-200">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-1" aria-hidden="true"></i>
                     Logout
                 </a>
             </div>
         </div>
     </nav>
 
-    <!-- ── Main Content ────────────────────────────────── -->
-    <main>
+    <!-- ── Main Content ───────────────────────────────────── -->
+    <main class="flex-1 relative z-[1] flex flex-col items-center px-3 pt-10 pb-8"
+          id="mainContent">
 
         <!-- Hero -->
-        <section class="hero" aria-labelledby="hero-heading">
-            <div class="badge" aria-label="Powered by AI">
-                <i class="fa-solid fa-circle" aria-hidden="true"></i>
+        <section class="text-center max-w-[720px] mb-14 animate-fadeUp"
+                 aria-labelledby="hero-heading">
+
+            <div class="inline-flex items-center gap-2 bg-[#ff3b5c]/10 border border-[#ff3b5c]/25
+                        text-[#ff3b5c] text-[0.75rem] font-semibold uppercase tracking-[0.08em]
+                        px-3 py-1 rounded-full mb-7"
+                 aria-label="Powered by AI">
+                <i class="fa-solid fa-circle text-[10px] animate-blink" aria-hidden="true"></i>
                 AI-Powered Note Generator
             </div>
 
-            <h1 id="hero-heading">
+            <h1 id="hero-heading"
+                class="font-['Bricolage_Grotesque'] font-extrabold text-[clamp(2.4rem,5vw,2.8rem)]
+                       leading-[1.08] tracking-[-0.03em] text-[#f0f0f6] mb-3">
                 YouTube Videos →<br>
-                <span class="accent-gradient">Smart AI Notes</span>
+                <span class="bg-gradient-to-br from-[#ff3b5c] to-[#ffa723]
+                             bg-clip-text text-transparent">Smart AI Notes</span>
             </h1>
 
-            <p class="hero-desc">
-                Paste a YouTube link to auto-generate
-                AI-powered notes or study guides in seconds.
+            <p class="text-[1.05rem] text-[#8b8ba7] max-w-[540px] mx-auto leading-[1.7]">
+                Paste a YouTube link to auto-generate AI-powered notes or study guides in seconds.
             </p>
         </section>
 
         <!-- Input Form -->
-        <div class="input-wrapper">
+        <div class="w-full max-w-[680px] mx-auto animate-fadeUp-2">
             <form hx-post="api/v1/note/generate"
                   hx-target="#resultContainer"
                   hx-indicator="#loadingState"
                   aria-label="YouTube link input form">
 
-                <div class="input-card" role="search">
-                    <div class="input-yt-icon" aria-hidden="true">
+                <div class="flex items-center gap-0 bg-[#13131f] border border-white/[0.07] rounded-2xl
+                            p-1.5 shadow-[0_24px_60px_rgba(0,0,0,0.4)]
+                            focus-within:border-[#ff3b5c]/40 focus-within:shadow-[0_0_0_4px_rgba(255,59,92,0.08),0_24px_60px_rgba(0,0,0,0.4)]
+                            transition-all duration-300"
+                     role="search">
+
+                    <div class="px-3 pl-4 text-[#ff3b5c] text-[1.3rem] shrink-0" aria-hidden="true">
                         <i class="fa-brands fa-youtube"></i>
                     </div>
 
-                    <input
-                        name="link"
-                        type="url"
-                        required
-                        class="url-input"
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        aria-label="YouTube video URL"
-                        autocomplete="off"
-                        spellcheck="false"
-                    >
+                    <input name="link"
+                           type="url"
+                           required
+                           class="flex-1 bg-transparent border-none outline-none text-[#f0f0f6]
+                                  font-['JetBrains_Mono'] text-[0.88rem] py-3.5 px-2 min-w-0
+                                  placeholder:text-[#4a4a65]"
+                           placeholder="https://www.youtube.com/watch?v=..."
+                           aria-label="YouTube video URL"
+                           autocomplete="off"
+                           spellcheck="false">
 
-                    <button id="generateBtn" type="submit" class="btn-generate" aria-label="Generate notes">
+                    <button id="generateBtn"
+                            type="submit"
+                            class="shrink-0 bg-[#ff3b5c] text-white font-['Instrument_Sans'] font-semibold
+                                   text-[0.9rem] border-none cursor-pointer rounded-2xl px-6 py-3.5
+                                   flex items-center gap-2 whitespace-nowrap
+                                   shadow-[0_0_24px_rgba(255,59,92,0.35)]
+                                   hover:bg-[#ff1f42] hover:-translate-y-px hover:shadow-[0_0_36px_rgba(255,59,92,0.35)]
+                                   active:translate-y-0 transition-all duration-200"
+                            aria-label="Generate notes">
                         <span id="btnText">Generate Notes</span>
                         <i id="btnSpinner" class="fa-solid fa-spinner fa-spin" style="display:none" aria-hidden="true"></i>
                         <i class="fa-solid fa-arrow-right" id="btnIcon" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <p class="input-hint">
-                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                <p class="text-center mt-5 mb-4 text-[0.78rem] text-[#4a4a65]">
+                    <i class="fa-solid fa-lock mr-1" aria-hidden="true"></i>
                     Supports youtube.com and youtu.be links · Your data stays private
                 </p>
             </form>
         </div>
 
         <!-- Loading State -->
-        <div id="loadingState" class="loading-wrap" role="status" aria-live="polite" aria-label="Generating notes">
-            <div class="spinner-ring" aria-hidden="true"></div>
-            <h3 class="loading-title">Analyzing Video Content…</h3>
-            <p class="loading-sub">Transcribing audio and writing your notes.</p>
+        <div id="loadingState"
+             class="flex-col items-center justify-center py-16"
+             role="status" aria-live="polite" aria-label="Generating notes">
+            <div class="spinner-ring relative w-16 h-16" aria-hidden="true"></div>
+            <h3 class="mt-5 font-['Bricolage_Grotesque'] text-[1.1rem] font-semibold text-[#f0f0f6]">
+                Analyzing Video Content…
+            </h3>
+            <p class="text-[0.82rem] text-[#8b8ba7] mt-1.5 animate-pulse-slow">
+                Transcribing audio and writing your notes.
+            </p>
         </div>
 
-        <!-- Result -->
-        <div id="resultContainer" aria-live="polite" aria-label="Generated notes output"></div>
+        <!-- Result container — HTMX target -->
+        <div id="resultContainer"
+             class="w-full max-w-[780px] mx-auto mt-4"
+             aria-live="polite"
+             aria-label="Generated notes output"></div>
 
     </main>
 
-    <!-- ── Footer ──────────────────────────────────────── -->
-    <footer>
+    <!-- ── Footer ──────────────────────────────────────────── -->
+    <footer class="relative z-[1] border-t border-white/[0.07] bg-[#07070d]/60 backdrop-blur-[10px]">
+
         <!-- Stats -->
-        <div class="stats" aria-label="Product statistics">
-            <div class="stat-item">
-                <div class="stat-num">10<span>x</span></div>
-                <div class="stat-label">Faster Learning</div>
+        <div class="flex justify-center gap-8 pt-6 pb-2 flex-wrap animate-fadeUp-3"
+             aria-label="Product statistics">
+            <div class="text-center">
+                <div class="font-['Bricolage_Grotesque'] text-[1.6rem] font-bold text-[#f0f0f6] leading-none">
+                    10<span class="text-[#ff3b5c]">x</span>
+                </div>
+                <div class="text-[0.75rem] text-[#4a4a65] uppercase tracking-[0.06em] mt-1">Faster Learning</div>
             </div>
-            <div class="stat-divider" aria-hidden="true"></div>
-            <div class="stat-item">
-                <div class="stat-num"><span>&lt;</span>60s</div>
-                <div class="stat-label">Generation Time</div>
+            <div class="w-px bg-white/[0.07] self-stretch"></div>
+            <div class="text-center">
+                <div class="font-['Bricolage_Grotesque'] text-[1.6rem] font-bold text-[#f0f0f6] leading-none">
+                    <span class="text-[#ff3b5c]">&lt;</span>60s
+                </div>
+                <div class="text-[0.75rem] text-[#4a4a65] uppercase tracking-[0.06em] mt-1">Generation Time</div>
             </div>
-            <div class="stat-divider" aria-hidden="true"></div>
-            <div class="stat-item">
-                <div class="stat-num">99<span>%</span></div>
-                <div class="stat-label">Accuracy</div>
+            <div class="w-px bg-white/[0.07] self-stretch"></div>
+            <div class="text-center">
+                <div class="font-['Bricolage_Grotesque'] text-[1.6rem] font-bold text-[#f0f0f6] leading-none">
+                    99<span class="text-[#ff3b5c]">%</span>
+                </div>
+                <div class="text-[0.75rem] text-[#4a4a65] uppercase tracking-[0.06em] mt-1">Accuracy</div>
             </div>
         </div>
 
-            <!-- Feature chips -->
-            <div class="features" aria-label="Features">
-                <div class="feature-chip">
-                    <div class="feature-icon" aria-hidden="true"><i class="fa-solid fa fa-message"></i></div>
-                    <div class="feature-text">
-                        <strong>Auto Transcription</strong>
-                        Powered by Faster-Whisper
-                    </div>
+        <!-- Feature chips -->
+        <div class="grid grid-cols-3 gap-3 max-w-[720px] mx-auto px-4 py-4 animate-fadeUp-4"
+             aria-label="Features">
+            <div class="bg-[#13131f] border border-white/[0.07] rounded-2xl p-5 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#ff3b5c]/10 grid place-items-center text-[13px]
+                            text-[#ff3b5c] shrink-0" aria-hidden="true">
+                    <i class="fa-solid fa-message"></i>
                 </div>
-                <div class="feature-chip">
-                    <div class="feature-icon" aria-hidden="true"><i class="fa-solid fa-brain"></i></div>
-                    <div class="feature-text">
-                        <strong>AI Summarization</strong>
-                        Gemini AI-powered notes
-                    </div>
-                </div>
-                <div class="feature-chip">
-                    <div class="feature-icon" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
-                    <div class="feature-text">
-                        <strong>Instant Results</strong>
-                        Ready in under 60 seconds
-                    </div>
+                <div class="text-[0.8rem] text-[#8b8ba7] leading-[1.3]">
+                    <strong class="block text-[#f0f0f6] font-semibold text-[0.82rem] mb-0.5">Auto Transcription</strong>
+                    Powered by Faster-Whisper
                 </div>
             </div>
+            <div class="bg-[#13131f] border border-white/[0.07] rounded-2xl p-5 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#ff3b5c]/10 grid place-items-center text-[13px]
+                            text-[#ff3b5c] shrink-0" aria-hidden="true">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div class="text-[0.8rem] text-[#8b8ba7] leading-[1.3]">
+                    <strong class="block text-[#f0f0f6] font-semibold text-[0.82rem] mb-0.5">AI Summarization</strong>
+                    Gemini AI-powered notes
+                </div>
+            </div>
+            <div class="bg-[#13131f] border border-white/[0.07] rounded-2xl p-5 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#ff3b5c]/10 grid place-items-center text-[13px]
+                            text-[#ff3b5c] shrink-0" aria-hidden="true">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="text-[0.8rem] text-[#8b8ba7] leading-[1.3]">
+                    <strong class="block text-[#f0f0f6] font-semibold text-[0.82rem] mb-0.5">Instant Results</strong>
+                    Ready in under 60 seconds
+                </div>
+            </div>
+        </div>
 
-        
-        <div class="footer-inner">
-            <p>&copy; 2026 YT-AI-Blog. All rights reserved.</p>
-            <div class="footer-stack" aria-label="Technology stack">
-                <span class="stack-tag">FastAPI</span>
-                <span class="stack-tag">Gemini AI</span>
-                <span class="stack-tag">HTMX</span>
-                <span class="stack-tag">Faster-Whisper</span>
+        <div class="max-w-[1100px] mx-auto px-6 py-6 flex justify-between items-center
+                    gap-4 flex-wrap text-[0.8rem] text-[#4a4a65]
+                    border-t border-white/[0.07]">
+            <p>&copy; 2026 YT-AI-Note. All rights reserved.</p>
+            <div class="flex items-center gap-2" aria-label="Technology stack">
+                <span class="bg-[#13131f] border border-white/[0.07] rounded-md px-2 py-0.5
+                             text-[0.72rem] font-['JetBrains_Mono'] text-[#8b8ba7]">FastAPI</span>
+                <span class="bg-[#13131f] border border-white/[0.07] rounded-md px-2 py-0.5
+                             text-[0.72rem] font-['JetBrains_Mono'] text-[#8b8ba7]">Gemini AI</span>
+                <span class="bg-[#13131f] border border-white/[0.07] rounded-md px-2 py-0.5
+                             text-[0.72rem] font-['JetBrains_Mono'] text-[#8b8ba7]">HTMX</span>
+                <span class="bg-[#13131f] border border-white/[0.07] rounded-md px-2 py-0.5
+                             text-[0.72rem] font-['JetBrains_Mono'] text-[#8b8ba7]">Faster-Whisper</span>
             </div>
         </div>
     </footer>
 
+    <!-- Dependencies -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/static/app.js"></script>
 </body>
 </html>

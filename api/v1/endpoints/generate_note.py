@@ -66,12 +66,12 @@ async def generate_note(
         return HTMLResponse(f"<div class='text-danger'>{note_content}</div>")
 
     # 6. Save to db
-    note = Notes(youtube_link=link, title=title, content=note_content)
+    note = Notes(youtube_link=link, content=note_content)
 
     db.add(note)
     await db.commit()
     await db.refresh(note)
 
     return templates.TemplateResponse(
-        request, "partials/blog_result.html", {"note_content": note_content}
+        request, "index.html", { "request": Request, "title": title, "note_content": note_content}
     )
