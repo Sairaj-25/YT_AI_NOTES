@@ -17,30 +17,37 @@ def generate_note_from_transcription(transcription: str) -> str:
 
     try:
         prompt = f"""
-                    You are an expert academic note generator.
+You are an expert academic note-writer. Convert the YouTube transcript below into clean, 
+well-structured Markdown notes suitable for a modern web app (rendered by marked.js).
 
-                    Convert the following YouTube transcript into high-quality, structured revision notes.
+## Output Format Rules (STRICTLY FOLLOW):
+- Use `#` for the main topic title (only once at the top)
+- Use `##` for major sections
+- Use `###` for subsections
+- Use `-` for bullet points (not `*`)
+- Use `**bold**` to highlight key terms and important concepts
+- Use `> blockquote` for key definitions or important callouts
+- Use fenced code blocks (` ``` `) for any code, commands, or technical syntax
+- Use Markdown tables for comparisons (with header row and `|---|` separator)
+- Use `---` (horizontal rule) to visually separate major sections
+- Leave a blank line between every element (paragraphs, lists, headings)
+- Do NOT output raw text walls — every piece of information must be structured
+- Remove filler words, repetition, promotions, and irrelevant content
 
-                    ### Instructions:
-                    - Extract only meaningful insights
-                    - Remove filler, repetition, promotions
-                    - Use headings and subheadings
-                    - Bullet points only
-                    - Highlight important keywords in **bold**
-                    - Convert content into:
-                      - Definitions
-                      - Step-by-step processes
-                      - Tables (if comparison)
-                      - Flowcharts (text format if needed)
-                    - Add:
-                      - Examples section
-                      - Quick Revision Box
-                      - Actionable Steps (if practical)
-                    - Keep concise but complete
-                    - Make output clean, structured, and revision-friendly
+## Required Document Structure:
+1. `# [Topic Title]` — one clear title
+2. `## 📌 Overview` — 2–4 sentence summary of the video
+3. `## 🔑 Key Concepts` — the most important ideas as bullet points
+4. `## 📖 Detailed Notes` — subsections (`###`) for each major topic
+   - Definitions, processes, comparisons (tables), examples
+5. `## 💡 Examples` — concrete examples from the video
+6. `## ⚡ Quick Revision` — 5–10 bullet points for fast review
+7. `## 🚀 Actionable Steps` — only if practical/how-to content exists
 
-                    ### Transcript:
-                    {transcription}
+---
+
+### Transcript:
+{transcription}
                 """
         response = gemini_client.models.generate_content(
             model="gemini-2.5-flash",
@@ -48,7 +55,7 @@ def generate_note_from_transcription(transcription: str) -> str:
             config=types.GenerateContentConfig(
                 system_instruction="You are a professional AI-powered academic note writer.",
                 temperature=0.3,
-                max_output_tokens=4096,
+                # max_output_tokens=4096,
             ),
         )
 

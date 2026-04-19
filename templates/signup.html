@@ -3,99 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register — YT-AI-NOTE</title>
+    <title>Create Account — YT-AI-NOTE</title>
     <meta name="robots" content="noindex, nofollow">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../static/style.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body:    ['"Instrument Sans"', 'sans-serif'],
+                    },
+                    animation: {
+                        'drift1': 'drift1 20s ease-in-out infinite alternate',
+                        'drift2': 'drift2 26s ease-in-out infinite alternate',
+                        'blink':  'blink 2s infinite',
+                        'fadeIn': 'fadeIn 0.5s ease both',
+                    },
+                    keyframes: {
+                        drift1: { from:{transform:'translate(0,0) scale(1)'}, to:{transform:'translate(60px,50px) scale(1.1)'} },
+                        drift2: { from:{transform:'translate(0,0) scale(1)'}, to:{transform:'translate(-55px,-45px) scale(1.12)'} },
+                        blink:  { '0%,100%':{opacity:'1'}, '50%':{opacity:'0.3'} },
+                        fadeIn: { from:{opacity:'0',transform:'translateY(16px)'}, to:{opacity:'1',transform:'translateY(0)'} },
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* htmx loading states */
+        .htmx-indicator                  { display: none !important; }
+        .htmx-request .htmx-indicator,
+        .htmx-request.htmx-indicator     { display: inline-block !important; }
+        .htmx-request #regBtnText        { display: none; }
+        .htmx-request #registerBtn       { opacity: 0.7; pointer-events: none; }
+        /* Response hidden when empty */
+        #register-response:empty         { display: none; }
+        /* Strength bar base */
+        .seg { flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,0.08); transition:background 0.3s; }
+    </style>
 </head>
-<body style="height:100vh;overflow:hidden">
 
-    <div class="bg-mesh" aria-hidden="true"></div>
+<body class="h-screen overflow-hidden bg-[#07070d] text-[#f0f0f6] font-body flex flex-col">
 
-    <nav aria-label="Main navigation">
-        <div class="nav-inner">
-            <a href="/" class="logo" aria-label="YT-AI-Blog home">
-                <div class="logo-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                <span class="logo-text">YT<span>-AI-</span>NOTE</span>
+    <!-- Animated background blobs -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div class="absolute w-[650px] h-[650px] -top-44 -right-44 rounded-full
+                    bg-[radial-gradient(circle,rgba(255,59,92,0.09)_0%,transparent_65%)]
+                    animate-drift1"></div>
+        <div class="absolute w-[500px] h-[500px] -bottom-28 -left-28 rounded-full
+                    bg-[radial-gradient(circle,rgba(255,167,35,0.07)_0%,transparent_65%)]
+                    animate-drift2"></div>
+        <div class="absolute inset-0 opacity-[0.03]"
+             style="background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')"></div>
+    </div>
+
+    <!-- ── Nav ──────────────────────────────────────────── -->
+    <nav class="relative z-10 shrink-0 bg-[#07070d]/80 backdrop-blur-xl border-b border-white/[0.07]"
+         aria-label="Main navigation">
+        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2.5 no-underline" aria-label="YT-AI-Note home">
+                <div class="w-8 h-8 bg-[#ff3b5c] rounded-xl grid place-items-center text-white text-sm
+                            shadow-[0_0_18px_rgba(255,59,92,0.4)]" aria-hidden="true">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <span class="font-display font-bold text-lg text-[#f0f0f6] tracking-tight leading-none">
+                    YT<span class="text-[#ff3b5c]">-AI-</span>NOTE
+                </span>
             </a>
-            <a href="/login" class="btn-nav-ghost">Sign In</a>
+            <a href="/login"
+               class="text-xs font-medium text-[#8b8ba7] no-underline px-3.5 py-1.5
+                      border border-white/[0.08] rounded-lg
+                      hover:text-[#f0f0f6] hover:border-white/[0.18] hover:bg-white/[0.04]
+                      transition-all duration-200">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-1" aria-hidden="true"></i>
+                Sign In
+            </a>
         </div>
     </nav>
 
-    <main class="auth-main">
-        <div class="auth-wrapper">
-            <div class="auth-card" role="region" aria-label="Registration form">
+    <!-- ── Content ──────────────────────────────────────── -->
+    <main class="relative z-[1] flex-1 flex items-center justify-center px-4 min-h-0"
+          aria-label="Registration form area">
 
-                <div class="auth-header">
-                    
-                    <h1 class="auth-title">Create Your Account </h1>
-                </div>
+        <div class="w-full max-w-[420px] animate-fadeIn">
 
-                <div id="register-response" class="auth-error" role="alert" aria-live="polite"></div>
 
-                <form class="auth-form" hx-post="/api/v1/auth/register" hx-target="#register-response" hx-swap="innerHTML" hx-indicator="#reg-spinner">
+            <!-- Heading -->
+            <h1 class="font-display font-extrabold text-[1.65rem] leading-tight tracking-tight
+                       text-center text-[#f0f0f6] mb-0.5">Create Account</h1>
+            <p class="text-center text-[0.8rem] text-[#8b8ba7] mb-4">
+                Start turning YouTube videos into smart notes
+            </p>
 
-                    <div class="auth-field">
-                        <label for="registerName" class="auth-label">Full Name</label>
-                        <input type="text" class="auth-input" id="registerName" name="name" placeholder="John Doe" required autocomplete="name">
-                    </div>
+            <!-- Card -->
+            <div class="bg-[#13131f] border border-white/[0.07] rounded-2xl px-6 py-5
+                        shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
 
-                    <div class="auth-field">
-                        <label for="registerEmail" class="auth-label">Email</label>
-                        <input type="email" class="auth-input" id="registerEmail" name="email" placeholder="you@example.com" required autocomplete="email" spellcheck="false">
-                    </div>
+                <!-- Error / success response -->
+                <div id="register-response"
+                     class="mb-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-center
+                            bg-red-500/10 border border-red-500/25 text-red-400"
+                     role="alert" aria-live="polite"></div>
 
-                    <div class="auth-field">
-                        <label for="registerPassword" class="auth-label">Password</label>
-                        <div class="auth-input-wrap">
-                            <input type="password" class="auth-input" id="registerPassword" name="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
-                            <button type="button" class="auth-toggle-pw" data-target="registerPassword" aria-label="Toggle password"><i class="fa-solid fa-eye"></i></button>
+                <form hx-post="/api/v1/auth/register"
+                      hx-target="#register-response"
+                      hx-swap="innerHTML"
+                      hx-indicator="#reg-spinner"
+                      aria-label="Registration form"
+                      id="registerForm">
+
+                    <!-- Name + Email side by side -->
+                    <div class="grid grid-cols-2 gap-2.5 mb-3">
+                        <!-- Full Name -->
+                        <div>
+                            <label for="registerName"
+                                   class="block text-[0.72rem] font-semibold text-[#8b8ba7] mb-1">
+                                Full Name
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a4a65] text-[0.75rem]"
+                                      aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" id="registerName" name="name"
+                                       placeholder="John Doe" required autocomplete="name"
+                                       class="w-full h-9 pl-8 pr-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08]
+                                              text-[#f0f0f6] text-xs placeholder:text-[#4a4a65]
+                                              outline-none focus:border-[#ff3b5c]/50 focus:bg-[#07070d]
+                                              focus:shadow-[0_0_0_3px_rgba(255,59,92,0.1)]
+                                              transition-all duration-200">
+                            </div>
+                        </div>
+                        <!-- Email -->
+                        <div>
+                            <label for="registerEmail"
+                                   class="block text-[0.72rem] font-semibold text-[#8b8ba7] mb-1">
+                                Email
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#4a4a65] text-[0.75rem]"
+                                      aria-hidden="true"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" id="registerEmail" name="email"
+                                       placeholder="you@example.com" required autocomplete="email" spellcheck="false"
+                                       class="w-full h-9 pl-8 pr-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08]
+                                              text-[#f0f0f6] text-xs placeholder:text-[#4a4a65]
+                                              outline-none focus:border-[#ff3b5c]/50 focus:bg-[#07070d]
+                                              focus:shadow-[0_0_0_3px_rgba(255,59,92,0.1)]
+                                              transition-all duration-200">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="auth-field">
-                        <label for="registerConfirm" class="auth-label">Confirm Password</label>
-                        <div class="auth-input-wrap">
-                            <input type="password" class="auth-input" id="registerConfirm" name="confirm_password" placeholder="Repeat your password" required minlength="6" autocomplete="new-password">
-                            <button type="button" class="auth-toggle-pw" data-target="registerConfirm" aria-label="Toggle password"><i class="fa-solid fa-eye"></i></button>
+                    <!-- Password -->
+                    <div class="mb-1.5">
+                        <label for="registerPassword"
+                               class="block text-[0.72rem] font-semibold text-[#8b8ba7] mb-1">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="registerPassword" name="password"
+                                   placeholder="Min. 6 characters"
+                                   required minlength="6" autocomplete="new-password"
+                                   oninput="updateStrength(this.value)"
+                                   class="w-full h-9 px-3.5 pr-10 rounded-xl bg-white/[0.04] border border-white/[0.08]
+                                          text-[#f0f0f6] text-xs placeholder:text-[#4a4a65]
+                                          outline-none focus:border-[#ff3b5c]/50 focus:bg-[#07070d]
+                                          focus:shadow-[0_0_0_3px_rgba(255,59,92,0.1)]
+                                          transition-all duration-200">
+                            <button type="button" data-target="registerPassword" onclick="togglePw(this)"
+                                    aria-label="Toggle password"
+                                    class="absolute right-0 top-0 h-9 w-9 flex items-center justify-center
+                                           text-[#4a4a65] hover:text-[#8b8ba7] transition-colors cursor-pointer">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-auth-primary">
-                        <span class="btn-auth-text">Create Account</span>
-                        <i class="fa-solid fa-spinner fa-spin htmx-indicator" id="reg-spinner" aria-hidden="true"></i>
+                    <!-- Strength bar -->
+                    <div class="flex gap-1 mb-3" aria-hidden="true">
+                        <div class="seg" id="seg1"></div>
+                        <div class="seg" id="seg2"></div>
+                        <div class="seg" id="seg3"></div>
+                        <div class="seg" id="seg4"></div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-4">
+                        <label for="registerConfirm"
+                               class="block text-[0.72rem] font-semibold text-[#8b8ba7] mb-1">
+                            Confirm Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="registerConfirm" name="confirm_password"
+                                   placeholder="Repeat your password"
+                                   required minlength="6" autocomplete="new-password"
+                                   class="w-full h-9 px-3.5 pr-10 rounded-xl bg-white/[0.04] border border-white/[0.08]
+                                          text-[#f0f0f6] text-xs placeholder:text-[#4a4a65]
+                                          outline-none focus:border-[#ff3b5c]/50 focus:bg-[#07070d]
+                                          focus:shadow-[0_0_0_3px_rgba(255,59,92,0.1)]
+                                          transition-all duration-200">
+                            <button type="button" data-target="registerConfirm" onclick="togglePw(this)"
+                                    aria-label="Toggle confirm password"
+                                    class="absolute right-0 top-0 h-9 w-9 flex items-center justify-center
+                                           text-[#4a4a65] hover:text-[#8b8ba7] transition-colors cursor-pointer">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="registerBtn"
+                            class="w-full h-10 bg-[#ff3b5c] text-white font-body font-semibold text-sm
+                                   rounded-xl border-none cursor-pointer flex items-center justify-center gap-2
+                                   shadow-[0_0_20px_rgba(255,59,92,0.35)]
+                                   hover:bg-[#ff1f42] hover:-translate-y-px hover:shadow-[0_0_32px_rgba(255,59,92,0.45)]
+                                   active:translate-y-0 transition-all duration-200">
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                        <span id="regBtnText">Create Account</span>
+                        <i id="reg-spinner" class="fa-solid fa-spinner fa-spin htmx-indicator" aria-hidden="true"></i>
                     </button>
                 </form>
 
-                <div class="auth-footer">
-                    <span class="auth-footer-text">Already have an account?</span>
-                    <a href="/login" class="auth-footer-link">Sign in here</a>
-                </div>
-
+                <!-- Footer link -->
+                <p class="mt-4 text-center text-xs text-[#4a4a65]">
+                    Already have an account?
+                    <a href="/login" class="text-[#ff3b5c] font-semibold ml-1 hover:text-[#ff6b82] transition-colors">
+                        Sign in here
+                    </a>
+                </p>
             </div>
+
+            <!-- Trust line -->
+            <p class="text-center mt-3 text-[0.68rem] text-[#4a4a65]">
+                <i class="fa-solid fa-shield-halved mr-1" aria-hidden="true"></i>
+                Free forever &middot; No credit card required
+            </p>
         </div>
     </main>
 
-    <footer class="auth-footer-bar"><p>&copy; 2026 YT-AI-Blog. All rights reserved.</p></footer>
+    <!-- ── Footer ───────────────────────────────────────── -->
+    <footer class="relative z-[1] shrink-0 border-t border-white/[0.07] py-3" aria-label="Site footer">
+        <p class="text-center text-[0.68rem] text-[#4a4a65]">&copy; 2026 YT-AI-Note. All rights reserved.</p>
+    </footer>
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script>
-        document.body.addEventListener('input', function(e) {
-            if (e.target.classList.contains('auth-input')) {
-                e.target.classList.remove('error-field');
-                var el = document.getElementById('register-response');
+        function togglePw(btn) {
+            const input = document.getElementById(btn.dataset.target);
+            const icon  = btn.querySelector('i');
+            input.type  = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        function updateStrength(val) {
+            const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
+            let score = 0;
+            if (val.length >= 6)  score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            ['seg1','seg2','seg3','seg4'].forEach((id, i) => {
+                const el = document.getElementById(id);
+                el.style.background = i < score ? colors[score - 1] : 'rgba(255,255,255,0.08)';
+            });
+        }
+
+        document.addEventListener('input', function (e) {
+            if (e.target.tagName === 'INPUT') {
+                const el = document.getElementById('register-response');
                 if (el) el.innerHTML = '';
             }
-        });
-        document.querySelectorAll('.auth-toggle-pw').forEach(function(b) {
-            b.addEventListener('click', function() {
-                var t = document.getElementById(this.dataset.target), i = this.querySelector('i');
-                t.type = t.type === 'password' ? 'text' : 'password';
-                i.classList.toggle('fa-eye'); i.classList.toggle('fa-eye-slash');
-            });
         });
     </script>
 </body>
