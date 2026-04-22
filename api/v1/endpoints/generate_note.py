@@ -1,4 +1,5 @@
 import asyncio
+import markdown
 from fastapi import APIRouter, Request, Form, Depends
 from pathlib import Path
 import logging
@@ -32,7 +33,7 @@ async def generate_note(
     request: Request,
     link: str = Form(...),
     db: AsyncSession = Depends(get_db),
-    # user=Depends(login_required),
+    user=Depends(login_required),
 ):
     logger.info("Received audio upaload: link=%s", link)
     # 1. Validate Request
@@ -65,13 +66,16 @@ async def generate_note(
     if not note_content or "error" in note_content.lower():
         return HTMLResponse(f"<div class='text-danger'>{note_content}</div>")
 
+    # Convert to HTML
+    note_html = markdown.markdown(note_content, extensions=["fenced_code"])
+
     # 6. Save to db
-    note = Notes(youtube_link=link, content=note_content)
+    note = Notes(youtube_link=link, content=note_html)
 
     db.add(note)
     await db.commit()
     await db.refresh(note)
 
     return templates.TemplateResponse(
-        request, "index.html", { "request": Request, "title": title, "note_content": note_content}
+        "partials/blog_result.html", {"request": request, "title": title, "note_html": note_html}
     )

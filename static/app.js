@@ -3,9 +3,18 @@
    ═══════════════════════════════════════════════════ */
 
 // Configure marked.js for proper GitHub-flavored markdown
+// Configure marked.js for GitHub-flavored markdown AND syntax highlighting
 marked.setOptions({
     breaks: true,   // Treat single newlines as <br>
     gfm: true,      // GitHub Flavored Markdown (tables, strikethrough, etc.)
+    highlight: function(code, lang) {
+        // Apply Highlight.js to code blocks
+        if (lang && hljs.getLanguage(lang)) {
+            return hljs.highlight(code, { language: lang }).value;
+        }
+        // Fallback to auto-detection if no language is specified
+        return hljs.highlightAuto(code).value;
+    }
 });
 
 /**
