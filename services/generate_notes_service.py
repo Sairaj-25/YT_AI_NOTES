@@ -11,38 +11,45 @@ settings = get_settings()
 gemini_client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def generate_note_from_transcription(transcription: str) -> str:
+def generate_note_from_transcription(transcription: str) -> str:  # always returns str
     if not transcription or len(transcription.strip()) < 20:
         return "Error: Transcription too short or Invalid"
 
     try:
         prompt = f"""
-You are an expert academic note-writer. Convert the YouTube transcript below into clean, 
-well-structured Markdown notes suitable for a modern web app (rendered by marked.js).
+You are a professional AI learning assistant.
 
-## Output Format Rules (STRICTLY FOLLOW):
-- Use `#` for the main topic title (only once at the top)
-- Use `##` for major sections
-- Use `###` for subsections
-- Use `-` for bullet points (not `*`)
-- Use `**bold**` to highlight key terms and important concepts
-- Use `> blockquote` for key definitions or important callouts
-- Use fenced code blocks (` ``` `) for any code, commands, or technical syntax
-- Use Markdown tables for comparisons (with header row and `|---|` separator)
-- Use `---` (horizontal rule) to visually separate major sections
-- Leave a blank line between every element (paragraphs, lists, headings)
-- Do NOT output raw text walls — every piece of information must be structured
-- Remove filler words, repetition, promotions, and irrelevant content
+Convert this YouTube transcript into high-quality, structured revision notes.
 
-## Required Document Structure:
-1. `# [Topic Title]` — one clear title
-2. `## 📌 Overview` — 2–4 sentence summary of the video
-3. `## 🔑 Key Concepts` — the most important ideas as bullet points
-4. `## 📖 Detailed Notes` — subsections (`###`) for each major topic
-   - Definitions, processes, comparisons (tables), examples
-5. `## 💡 Examples` — concrete examples from the video
-6. `## ⚡ Quick Revision` — 5–10 bullet points for fast review
-7. `## 🚀 Actionable Steps` — only if practical/how-to content exists
+Instructions:
+
+• Extract only meaningful insights.
+• Remove filler, jokes, repetition, and promotions.
+• Organize content into sections with headings.
+• Use bullet points.
+• Highlight important keywords in bold.
+• Convert explanations into:
+  - Definitions
+  - Step-by-step processes
+  - Tables (if comparison discussed)
+  - Flowcharts (text format if needed)
+• Add examples separately under an “Examples” section.
+• Add a “Quick Revision Box” at the end.
+• Add “Actionable Steps” if the video is practical.
+• Keep output concise but complete.
+
+Output must look clean, like premium AI-generated notes.
+
+You are an expert academic note generator.
+Transform the provided content into professional, high-quality smart notes similar to NoteGPT.
+Summarize the following content into smart structured notes:
+
+- Use headings and subheadings
+- Bullet format only
+- Highlight keywords
+- Include summary box at end
+- Keep concise but comprehensive
+- Make it visually clean and revision-friendly
 
 ---
 
@@ -54,8 +61,8 @@ well-structured Markdown notes suitable for a modern web app (rendered by marked
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction="You are a professional AI-powered academic note writer.",
-                temperature=0.3,
-                # max_output_tokens=4096,
+                temperature=0.7,
+                max_output_tokens=8192,
             ),
         )
 

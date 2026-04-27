@@ -19,23 +19,22 @@ router = APIRouter(prefix="/note", tags=["Note"])
 
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# FIX: Go up 4 parents to reach the project root: 
+# api/v1/endpoints/generate_note.py -> endpoints -> v1 -> api -> YT_AI_NOTES (Root)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
+# Now it correctly points to: D:\GitHub Projects\FastApi\YT_AI_NOTES\templates
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-# def login_required()
 
-
-@router.post(
-    "/generate", response_class=HTMLResponse
-)  # api/v1/note/genearte -> for apirouter prefix is set to /note
+@router.post("/generate", response_class=HTMLResponse)
 async def generate_note(
     request: Request,
     link: str = Form(...),
     db: AsyncSession = Depends(get_db),
-    user=Depends(login_required),
 ):
-    logger.info("Received audio upaload: link=%s", link)
+    logger.info("Received audio upload: link=%s", link)
+    
     # 1. Validate Request
     if not link:
         return HTMLResponse("<div class='text-danger'>Youtube link is required.</div>")
@@ -63,19 +62,17 @@ async def generate_note(
 
     # 5. Generate Note
     note_content = generate_note_from_transcription(transcription)
-    if not note_content or "error" in note_content.lower():
+    if not note_content or "Error" in note_content:
         return HTMLResponse(f"<div class='text-danger'>{note_content}</div>")
 
-    # Convert to HTML
-    note_html = markdown.markdown(note_content, extensions=["fenced_code"])
-
-    # 6. Save to db
-    note = Notes(youtube_link=link, content=note_html)
+    # 6. Save to db (Saving raw markdown)
+    note = Notes(youtube_link=link, content=note_content)
 
     db.add(note)
     await db.commit()
     await db.refresh(note)
 
+    # 7. Return template with raw markdown
     return templates.TemplateResponse(
-        "partials/blog_result.html", {"request": request, "title": title, "note_html": note_html}
+        request, "partials/blog_result.html", {"title": title, "note_content": note_content}
     )

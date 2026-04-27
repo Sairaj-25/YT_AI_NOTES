@@ -1,4 +1,4 @@
-<!-- ── Result Card ──────────────────────────────────────────────────── -->
+<!-- ── blog_result.html ──────────────────────────────────────────────────── -->
 <!-- NOTE: No <link> or <script> tags here — this is an HTMX partial.  -->
 <!-- All scripts/styles live in index.html.                             -->
 
@@ -53,9 +53,10 @@
     </div>
 
     <!-- Content area where marked.js renders the markdown -->
-    <div class="p-8 sm:p-5">
+    <div class="p-8 sm:p-10">
+        <!-- CHANGED: Using your custom .prose-content class for the textbook look -->
         <article id="blogContent"
-                class="markdown-body !bg-transparent text-[#8b8ba7] text-[0.95rem] leading-[1.8]"
+                class="prose-content"
                 aria-label="Generated notes">
         </article>
     </div>
