@@ -2,27 +2,19 @@
    app.js — YT-AI-Note
    ═══════════════════════════════════════════════════ */
 
-// Configure marked.js for proper GitHub-flavored markdown
-// Configure marked.js for GitHub-flavored markdown AND syntax highlighting
+// marked v5+ removed the `highlight` option — configure only valid options
 marked.setOptions({
-    breaks: true,   // Treat single newlines as <br>
-    gfm: true,      // GitHub Flavored Markdown (tables, strikethrough, etc.)
-    highlight: function(code, lang) {
-        // Apply Highlight.js to code blocks
-        if (lang && hljs.getLanguage(lang)) {
-            return hljs.highlight(code, { language: lang }).value;
-        }
-        // Fallback to auto-detection if no language is specified
-        return hljs.highlightAuto(code).value;
-    }
+    breaks: true,
+    gfm: true,
 });
 
 /**
- * After HTMX swaps the blog_result.html partial into #resultContainer:
- *  1. Read raw markdown from the JSON <script> tag (#rawMarkdownData)
- *  2. Parse it with marked.js and inject into #blogContent
- *  3. Animate the card into view
- *  4. Set the PDF date labels
+ * After HTMX swaps blog_result.html into #resultContainer:
+ *  1. Read raw markdown from JSON <script> tag
+ *  2. Parse with marked.js → inject HTML into #blogContent
+ *  3. Run highlight.js manually on code blocks
+ *  4. Animate card in & scroll to result
+ *  5. Set PDF date labels
  */
 document.body.addEventListener('htmx:afterSwap', function (evt) {
     if (evt.detail.target.id !== 'resultContainer') return;
@@ -34,7 +26,7 @@ document.body.addEventListener('htmx:afterSwap', function (evt) {
 
     if (!rawDataEl || !contentDiv || !resultCard) return;
 
-    // ── Safely decode the JSON-encoded markdown string ──────
+    // ── Safely decode the JSON-encoded markdown ────────────
     let markdown = '';
     try {
         markdown = JSON.parse(rawDataEl.textContent);
@@ -43,16 +35,24 @@ document.body.addEventListener('htmx:afterSwap', function (evt) {
         return;
     }
 
-    // Populate the hidden #rawMarkdown div for copy/PDF handlers
+    // Populate hidden #rawMarkdown div for copy/PDF handlers
     if (rawEl) rawEl.textContent = markdown;
 
-    // ── Render markdown → HTML ───────────────────────────────
+    // ── Render markdown → HTML ─────────────────────────────
     contentDiv.innerHTML = marked.parse(markdown);
 
-    // ── Style chapter banner h2 ──────────────────────────────
+    // ── Syntax highlight code blocks (manual, since highlight
+    //    option no longer exists in marked v5+) ─────────────
+    if (typeof hljs !== 'undefined') {
+        contentDiv.querySelectorAll('pre code').forEach(function (block) {
+            hljs.highlightElement(block);
+        });
+    }
+
+    // ── Style chapter banner h2 ────────────────────────────
     styleChapterBanner(contentDiv);
 
-    // ── Animate card in (remove opacity-0 + translate-y-5) ──
+    // ── Animate card in ────────────────────────────────────
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             resultCard.classList.remove('opacity-0', 'translate-y-5');
@@ -60,12 +60,12 @@ document.body.addEventListener('htmx:afterSwap', function (evt) {
         });
     });
 
-    // ── Scroll to result ────────────────────────────────────
+    // ── Scroll to result ───────────────────────────────────
     setTimeout(() => {
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
 
-    // ── PDF date stamps ──────────────────────────────────────
+    // ── PDF date stamps ────────────────────────────────────
     const now = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'
     });
@@ -77,23 +77,14 @@ document.body.addEventListener('htmx:afterSwap', function (evt) {
 
 
 /* ── Chapter banner styler ────────────────────────────────── */
-/**
- * Takes the first h2 inside the rendered content (expected text like
- * "Chapter · 01   Introduction to Python") and restructures its
- * inner HTML into a two-part layout: a bold dark label + the title.
- */
 function styleChapterBanner(container) {
     const h2 = container.querySelector('h2');
     if (!h2) return;
 
     const text = h2.textContent.trim();
-
-    // Match: "Chapter · 01   Title text here"
-    // The AI outputs: ## Chapter · 01 &nbsp;&nbsp; Title
-    // After marked.js parses it, &nbsp; becomes \u00a0
     const match = text.match(/^(Chapter\s*[·•]\s*\d+)\s+([\s\S]+)$/i);
     if (match) {
-        const label = match[1].trim(); // "Chapter · 01"
+        const label = match[1].trim();
         const title = match[2].replace(/\u00a0/g, ' ').trim();
         h2.innerHTML =
             `<span style="font-weight:900;margin-right:16px;white-space:nowrap;">${label}</span>` +
@@ -102,13 +93,12 @@ function styleChapterBanner(container) {
 }
 
 
-/* ── Copy handler (called from onclick in blog_result.html) ── */
+/* ── Copy handler ─────────────────────────────────────────── */
 function handleCopy(btn) {
     const raw = document.getElementById('rawMarkdown');
     if (!raw) return;
 
     navigator.clipboard.writeText(raw.textContent.trim()).then(() => {
-        // Copied state — green
         btn.classList.add('!text-green-400', '!bg-green-500/10', '!border-green-500/30');
         const copyText = document.getElementById('copyText');
         const icon = btn.querySelector('i');
@@ -130,14 +120,12 @@ function handleDownloadPDF(btn) {
     const icon      = btn.querySelector('i');
     const label     = btn.querySelector('span');
 
-    // Copy rendered HTML into print area
     const blogContent = document.getElementById('blogContent');
     const pdfBody     = document.getElementById('pdfBody');
     if (blogContent && pdfBody) {
         pdfBody.innerHTML = blogContent.innerHTML;
     }
 
-    // Show loading state
     if (icon)  icon.className  = 'fa-solid fa-spinner fa-spin';
     if (label) label.textContent = 'Preparing…';
     if (printArea) printArea.style.display = 'block';
