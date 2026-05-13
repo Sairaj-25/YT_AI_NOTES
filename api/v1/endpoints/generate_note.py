@@ -1,6 +1,5 @@
 import asyncio
-import markdown
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, BackgroundTasks, Request, Form, Depends
 from pathlib import Path
 import logging
 from fastapi.responses import HTMLResponse
@@ -8,9 +7,14 @@ from fastapi.templating import Jinja2Templates
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
-from services.yt_title_service import get_yt_title
-from services.audio_download_service import download_audio
-from services.audio_transcribe_service import transcribe_audio_whisper
+from services.audio_download_service import (
+    delete_downloaded_audio,
+    download_audio_with_metadata,
+)
+from services.audio_transcribe_service import (
+    transcribe_audio_whisper,
+    transcription_succeeded,
+)
 from services.generate_notes_service import generate_note_from_transcription
 
 from models.db_models import Notes
@@ -30,49 +34,68 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 @router.post("/generate", response_class=HTMLResponse)
 async def generate_note(
     request: Request,
+    background_tasks: BackgroundTasks,
     link: str = Form(...),
     db: AsyncSession = Depends(get_db),
 ):
     logger.info("Received audio upload: link=%s", link)
-    
-    # 1. Validate Request
-    if not link:
-        return HTMLResponse("<div class='text-danger'>Youtube link is required.</div>")
+    file_path: str | None = None
 
-    # 2. Get title
-    title = get_yt_title(link)
-    if not title:
-        return HTMLResponse(
-            "<div class='text-danger'>Failed to fetch YouTube title.</div>"
+    try:
+        # 1. Validate Request
+        if not link:
+            return HTMLResponse(
+                "<div class='text-danger'>Youtube link is required.</div>",
+                background=background_tasks,
+            )
+
+        loop = asyncio.get_running_loop()
+
+        # 2. Download audio and reuse the same metadata for the title.
+        download = await loop.run_in_executor(None, download_audio_with_metadata, link)
+        if not download:
+            return HTMLResponse(
+                "<div class='text-danger'>Failed to download audio.</div>",
+                background=background_tasks,
+            )
+        file_path = download.file_path
+        title = download.title
+
+        # 3. Transcribe
+        transcription: str = await loop.run_in_executor(
+            None, transcribe_audio_whisper, file_path
+        )
+        if not transcription_succeeded(transcription):
+            return HTMLResponse(
+                "<div class='text-danger'>Failed to get transcript.</div>",
+                background=background_tasks,
+            )
+
+        # 4. Generate Note
+        note_content = await loop.run_in_executor(
+            None, generate_note_from_transcription, transcription
+        )
+        if not note_content or "Error" in note_content:
+            return HTMLResponse(
+                f"<div class='text-danger'>{note_content}</div>",
+                background=background_tasks,
+            )
+
+        # 5. Save to db (Saving raw markdown)
+        note = Notes(youtube_link=link, content=note_content)
+
+        db.add(note)
+        await db.commit()
+        await db.refresh(note)
+
+        # 6. Return template with raw markdown
+        return templates.TemplateResponse(
+            request,
+            "partials/blog_result.html",
+            {"title": title, "note_content": note_content},
+            background=background_tasks,
         )
 
-    # 3. Download audio
-    file_path = download_audio(link)
-    if not file_path:
-        return HTMLResponse("<div class='text-danger'>Failed to download audio.</div>")
-
-    loop = asyncio.get_running_loop()
-
-    # 4. transcribe
-    transcription: str = await loop.run_in_executor(
-        None, transcribe_audio_whisper, file_path
-    )
-    if not transcription or "Failed" in transcription:
-        return HTMLResponse("<div class='text-danger'>Failed to get transcript.</div>")
-
-    # 5. Generate Note
-    note_content = generate_note_from_transcription(transcription)
-    if not note_content or "Error" in note_content:
-        return HTMLResponse(f"<div class='text-danger'>{note_content}</div>")
-
-    # 6. Save to db (Saving raw markdown)
-    note = Notes(youtube_link=link, content=note_content)
-
-    db.add(note)
-    await db.commit()
-    await db.refresh(note)
-
-    # 7. Return template with raw markdown
-    return templates.TemplateResponse(
-        request, "partials/blog_result.html", {"title": title, "note_content": note_content}
-    )
+    finally:
+        if file_path:
+            background_tasks.add_task(delete_downloaded_audio, file_path)

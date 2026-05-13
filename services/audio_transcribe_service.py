@@ -1,16 +1,20 @@
 import logging
 import os
-import tempfile
 
 from faster_whisper import WhisperModel, BatchedInferencePipeline
-from pydub import AudioSegment
 
 logger = logging.getLogger(__name__)
+
+TRANSCRIPTION_FAILED_PREFIX = "Transcription Failed:"
 
 # Singleton Model (Load model once)
 
 model: WhisperModel | None = None
 batched_model: BatchedInferencePipeline | None = None
+
+
+def transcription_succeeded(transcript: str | None) -> bool:
+    return bool(transcript) and not transcript.startswith(TRANSCRIPTION_FAILED_PREFIX)
 
 
 def getmodel() -> BatchedInferencePipeline:
@@ -33,31 +37,15 @@ def getmodel() -> BatchedInferencePipeline:
 
 
 def transcribe_audio_whisper(file_path: str) -> str:
-    tmp_path: str | None = None
-
     try:
         if not os.path.exists(file_path):
-            return "Transcription Failed: File not found"
-
-        # 1. Load Audio File
-        audio = AudioSegment.from_file(file_path)
-
-        # 2. Normalize for Whisper
-        audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
-
-        # 3. Convert to temp WAV (required)
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            audio.export(tmp.name, format="wav")
-            tmp_path = tmp.name
+            return f"{TRANSCRIPTION_FAILED_PREFIX} File not found"
 
         # initialiazed the model
         batchedmodel = getmodel()
 
-        # 4. Transcribe
-
-        # Transcribe with batching and VAD enabled
         segments, info = batchedmodel.transcribe(
-            tmp_path, batch_size=16, vad_filter=True, beam_size=5
+            file_path, batch_size=16, vad_filter=True, beam_size=5
         )
 
         transcript = " ".join([segment.text for segment in segments])
@@ -72,8 +60,4 @@ def transcribe_audio_whisper(file_path: str) -> str:
 
     except Exception as e:
         logger.error(f"Transcription error: {e}", exc_info=True)
-        return f"Transcription Failed: {e}"
-
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            os.unlink(tmp_path)
+        return f"{TRANSCRIPTION_FAILED_PREFIX} {e}"
