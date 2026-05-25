@@ -9,6 +9,9 @@ from starlette.middleware.sessions import SessionMiddleware
 from core.database import engine, Base
 from contextlib import asynccontextmanager
 from api.v1.router import router
+from core.config import get_settings
+
+settings = get_settings()
 
 
 # Logging
@@ -40,9 +43,14 @@ app = FastAPI(
 # Sessions (cockie-based)
 app.add_middleware(
     SessionMiddleware,
-    secret_key="change-me-in-production",
+    secret_key=getattr(
+        settings,
+        "SESSION_SECRET_KEY",
+        getattr(settings, "SECRET_KEY", "session-secret"),
+    ),
+    session_cookie=getattr(settings, "SESSION_COOKIE_NAME", "session"),
     same_site="lax",
-    https_only=False,
+    https_only=False, # True in Production with https
 )
 
 
