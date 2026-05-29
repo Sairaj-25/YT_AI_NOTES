@@ -50,7 +50,7 @@ app.add_middleware(
     ),
     session_cookie=getattr(settings, "SESSION_COOKIE_NAME", "session"),
     same_site="lax",
-    https_only=False, # True in Production with https
+    https_only=False,  # True in Production with https
 )
 
 
