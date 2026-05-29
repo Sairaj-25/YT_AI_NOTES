@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+  UV_LINK_MODE: copy
+  DEBUG: "false"
+  DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+  GEMINI_API_KEY: "ci-dummy-key"
+
+jobs:
+  quality:
+    name: Quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.17"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Verify lockfile
+        run: uv lock --check
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-groups
+
+      - name: Check Python formatting
+        run: uv run --frozen ruff format --check .
+
+      - name: Lint Python
+        run: uv run --frozen ruff check .
+
+      - name: Compile Python modules
+        run: uv run --frozen python -m compileall -q api core models schemas services main.py
+
+      - name: Smoke test FastAPI app import
+        run: >
+          uv run --frozen python -c
+          "from main import app;
+          assert app.title == 'YT_AI_NOTES API';
+          assert any(route.path == '/' for route in app.routes)"
+
+      - name: Run tests if present
+        run: |
+          if find . -path ./.venv -prune -o -type f \( -name 'test_*.py' -o -name '*_test.py' \) -print -quit | grep -q .; then
+            uv run --frozen pytest -q
+          else
+            echo "No pytest tests found; skipping."
+          fi

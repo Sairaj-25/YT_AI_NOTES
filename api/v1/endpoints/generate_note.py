@@ -24,7 +24,7 @@ router = APIRouter(prefix="/note", tags=["Note"])
 
 logger = logging.getLogger(__name__)
 
-# FIX: Go up 4 parents to reach the project root: 
+# FIX: Go up 4 parents to reach the project root:
 # api/v1/endpoints/generate_note.py -> endpoints -> v1 -> api -> YT_AI_NOTES (Root)
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 

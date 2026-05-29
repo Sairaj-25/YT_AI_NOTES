@@ -27,5 +27,7 @@ def save_transcription_text(transcription: str, yt_title: str) -> str | None:
         return str(output_path)
 
     except OSError as e:
-        logger.error("Failed to save transcription for %s: %s", yt_title, e, exc_info=True)
+        logger.error(
+            "Failed to save transcription for %s: %s", yt_title, e, exc_info=True
+        )
         return None
