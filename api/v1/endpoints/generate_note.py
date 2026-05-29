@@ -16,6 +16,7 @@ from services.audio_transcribe_service import (
     transcription_succeeded,
 )
 from services.generate_notes_service import generate_note_from_transcription
+from services.transcription_output_service import save_transcription_text
 
 from models.db_models import Notes
 
@@ -80,6 +81,7 @@ async def generate_note(
                 f"<div class='text-danger'>{note_content}</div>",
                 background=background_tasks,
             )
+        background_tasks.add_task(save_transcription_text, transcription, title)
 
         # 5. Save to db (Saving raw markdown)
         note = Notes(youtube_link=link, content=note_content)
