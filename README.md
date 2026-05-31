@@ -144,61 +144,58 @@ Visit **http://127.0.0.1:8000/** in your browser.
 ## 🗂️ Project Structure
 
 ```
-**FastAPI Project Structure** (Clean & Professional Version)
+**FastAPI Project Structure**
 
 ```bash
-yt-ai-notes/                  # Root folder (Project Name)
+
+YT_AI_NOTES                 # Root folder (Project Name)
 ├── .env
 ├── main.py                   # FastAPI entry point
 ├── pyproject.toml
 ├── uv.lock
 ├── README.md
+├── LICENSE
+├── CONTRIBUTING.md
 ├── .gitignore
 ├── .venv/                    # virtual environment
-├── app/                      # Main application package
-│   ├── __init__.py
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── config.py         # Settings / configuration
-│   │   └── database.py       # Database connection & session
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── v1/               # API version 1
-│   │   │   ├── __init__.py
-│   │   │   ├── endpoints/
-│   │   │   │   ├── __init__.py
-│   │   │   │   ├── auth.py
-│   │   │   │   ├── notes.py
-│   │   │   │   ├── convert.py
-│   │   │   │   └── ... 
-│   │   │   └── router.py     # Include all routers
-│   ├── schemas/              # Pydantic models
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── note.py
-│   │   └── ... 
-│   ├── models/               # SQLAlchemy models
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── note.py
-│   │   └── ...
-│   ├── services/             # Business logic layer
-│   │   ├── __init__.py
-│   │   ├── auth_service.py
-│   │   ├── note_service.py
-│   │   ├── convert_pdf_service.py
-│   │   ├── note_creation_service.py
-│   │   └── grammar_audio_transcribe_service.py
-│   ├── db/                   # Database related
-│   │   ├── __init__.py
-│   │   └── schemas.py        # Or migrations folder
-│   └── utils/
-│       ├── __init__.py
-│       ├── pdf_utils.py
-│       └── audio_utils.py
-├── alembic/                  # (Optional) Database migrations
-├── tests/
-│   └── ...
+├── api
+│   └── v1                    # API version 1
+│       ├── endpoints
+│       │   ├── auth.py
+│       │   ├── generate_note.py
+│       │   └── transcription.py
+│       └── router.py                     # Include all routers
+├── core
+│   ├── config.py                 # Settings / configuration
+│   └── database.py               # Database connection & session
+├── media
+├── models
+│   └──db_models.py
+├── output
+├── schemas
+│   ├── audio_schema.py
+│   ├── db_schema.py
+│   └── yt_schema.py
+├── services                            # Business logic layer
+│   ├── audio_download_service.py
+│   ├── audio_transcribe_service.py
+│   ├── auth_service.py
+│   ├── generate_notes_service.py
+│   ├── transcription_output_service.py
+│   └── yt_title_service.py
+├── static
+│   ├── app.js
+│   └── style.css
+├── templates
+│   ├── partials
+│   │   ├── blog_result.html
+│   │   └── error.html
+│   ├── forgot_pass.html
+│   ├── index.html
+│   ├── signin.html
+│   └── signup.html
+|
+└── yt_ai_notes.db
 
 ```
 
