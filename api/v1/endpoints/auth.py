@@ -1,3 +1,5 @@
+from html import escape
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +10,14 @@ from schemas.db_schema import UserCreate, UserLogin
 from services.auth_service import create_user, authenticate_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def auth_message_html(kind: str, title: str, detail: str) -> str:
+    return f"""
+            <div class="auth-response-message text-{kind}">
+                <strong>{escape(title)}</strong> {escape(str(detail))}
+            </div>
+            """
 
 
 @router.post("/register")
@@ -31,11 +41,14 @@ async def register(
         }
 
         # Success response with redirect
+        display_name = user.name or user.email
         return HTMLResponse(
             content=f"""
-            <div class="text-success" style="font-size: 0.9rem; text-align: center;">
-                Account created successfully from {user.name or user.email}! Redirecting...
-            </div>
+            {auth_message_html(
+                "success",
+                "Account created:",
+                f"Welcome, {display_name}! Redirecting...",
+            )}
             <script>
                 setTimeout(() => {{
                 window.location.href = '/';
@@ -47,7 +60,7 @@ async def register(
 
     except HTTPException as e:
         return HTMLResponse(
-            content=f'<div class="text-danger">{e.detail}</div>',
+            content=auth_message_html("danger", "Registration failed:", e.detail),
             status_code=e.status_code,
         )
 
@@ -71,11 +84,14 @@ async def login(
             "email": user.email,
             "name": getattr(user, "name", None),
         }
+        display_name = user.name or user.email
         return HTMLResponse(
             content=f"""
-            <div class="text-success" style="font-size: 0.9rem; text-align: center;">
-                Login successful ! welcome back {user.name or user.email}! Redirecting...
-            </div>
+            {auth_message_html(
+                "success",
+                "Login successful:",
+                f"Welcome back, {display_name}! Redirecting...",
+            )}
             <script>
                 setTimeout(() => {{
                 window.location.href = '/';
@@ -87,23 +103,14 @@ async def login(
 
     except HTTPException:
         return HTMLResponse(
-            content="""
-            <div class="text-danger">Invalid email or password.</div>
-            <script>
-                document.querySelectorAll('.sf-input').forEach(el => el.classList.add('error-field'));
-            </script>
-            """,
+            content=auth_message_html(
+                "danger", "Login failed:", "Invalid email or password."
+            ),
             status_code=401,
         )
 
-    except Exception as e:
+    except Exception:
         return HTMLResponse(
-            content=f"""
-            <div class="text-danger" style="font-size: 0.9rem; text-align: center;">
-                Login failed: {str(e)}
-            </div>
-            <script>
-                document.querySelectorAll('.sf-input').forEach(el => el.classList.add('error-field'));
-                </script>""",
+            content=auth_message_html("danger", "Login failed:", "Please try again."),
             status_code=400,
         )
