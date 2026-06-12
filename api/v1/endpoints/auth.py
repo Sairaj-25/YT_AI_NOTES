@@ -44,11 +44,13 @@ async def register(
         display_name = user.name or user.email
         return HTMLResponse(
             content=f"""
-            {auth_message_html(
-                "success",
-                "Account created:",
-                f"Welcome, {display_name}! Redirecting...",
-            )}
+            {
+                auth_message_html(
+                    "success",
+                    "Account created:",
+                    f"Welcome, {display_name}! Redirecting...",
+                )
+            }
             <script>
                 setTimeout(() => {{
                 window.location.href = '/';
@@ -87,11 +89,13 @@ async def login(
         display_name = user.name or user.email
         return HTMLResponse(
             content=f"""
-            {auth_message_html(
-                "success",
-                "Login successful:",
-                f"Welcome back, {display_name}! Redirecting...",
-            )}
+            {
+                auth_message_html(
+                    "success",
+                    "Login successful:",
+                    f"Welcome back, {display_name}! Redirecting...",
+                )
+            }
             <script>
                 setTimeout(() => {{
                 window.location.href = '/';
