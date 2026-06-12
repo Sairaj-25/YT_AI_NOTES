@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -103,14 +104,16 @@
 
                 <!-- Error / success response -->
                 <div id="login-response"
-                     class="mb-4 px-3.5 py-2.5 rounded-xl text-xs font-medium text-center
-                            bg-red-500/10 border border-red-500/25 text-red-400"
+                     class="auth-response mb-4 px-3.5 py-2.5 rounded-xl text-xs font-medium text-center"
+                     data-auth-response
                      role="alert" aria-live="polite"></div>
 
                 <form hx-post="/api/v1/auth/login"
                       hx-target="#login-response"
                       hx-swap="innerHTML"
                       hx-indicator="#login-spinner"
+                      data-auth-form
+                      id="loginForm"
                       aria-label="Sign-in form">
 
                     <!-- Social buttons -->
@@ -149,7 +152,7 @@
                         <input type="email" id="username" name="username"
                                placeholder="you@example.com"
                                required autocomplete="username" spellcheck="false"
-                               class="w-full h-10 px-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08]
+                               class="auth-input w-full h-10 px-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08]
                                       text-[#f0f0f6] text-sm placeholder:text-[#4a4a65]
                                       outline-none focus:border-[#ff3b5c]/50 focus:bg-[#07070d]
                                       focus:shadow-[0_0_0_3px_rgba(255,59,92,0.1)]
@@ -166,7 +169,7 @@
                             <input type="password" id="password" name="password"
                                    placeholder="Enter your password"
                                    required autocomplete="current-password"
-                                   class="w-full h-10 px-3.5 pr-10 rounded-xl bg-white/[0.04] border border-white/[0.08]
+                                   class="auth-input w-full h-10 px-3.5 pr-10 rounded-xl bg-white/[0.04] border border-white/[0.08]
                                           text-[#f0f0f6] text-sm placeholder:text-[#4a4a65]
                                           outline-none focus:border-[#ff3b5c]/50 focus:bg-[#07070d]
                                           focus:shadow-[0_0_0_3px_rgba(255,59,92,0.1)]
@@ -232,6 +235,56 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script>
+        function isAuthResponse(target) {
+            return target && target.matches('[data-auth-response]');
+        }
+
+        function getAuthForm(target) {
+            return document.querySelector('form[data-auth-form][hx-target="#' + target.id + '"]');
+        }
+
+        function setAuthFeedback(target, status) {
+            const isError = status >= 400;
+            const form = getAuthForm(target);
+
+            target.classList.remove('is-error', 'is-success');
+            target.classList.add(isError ? 'is-error' : 'is-success');
+
+            if (!form) return;
+            form.querySelectorAll('.auth-input').forEach(function (input) {
+                input.classList.toggle('error-field', isError);
+            });
+        }
+
+        function clearAuthFeedback(input) {
+            const form = input.closest('form[data-auth-form]');
+            if (!form) return;
+
+            const target = document.querySelector(form.getAttribute('hx-target'));
+            if (target) {
+                target.innerHTML = '';
+                target.classList.remove('is-error', 'is-success');
+            }
+
+            form.querySelectorAll('.auth-input').forEach(function (field) {
+                field.classList.remove('error-field');
+            });
+        }
+
+        document.body.addEventListener('htmx:beforeSwap', function (event) {
+            if (!isAuthResponse(event.detail.target)) return;
+
+            if (event.detail.xhr.status >= 400) {
+                event.detail.shouldSwap = true;
+                event.detail.isError = false;
+            }
+        });
+
+        document.body.addEventListener('htmx:afterSwap', function (event) {
+            if (!isAuthResponse(event.detail.target)) return;
+            setAuthFeedback(event.detail.target, event.detail.xhr.status);
+        });
+
         function togglePw(btn) {
             const input = document.getElementById(btn.dataset.target);
             const icon  = btn.querySelector('i');
@@ -241,9 +294,12 @@
         }
 
         document.addEventListener('input', function (e) {
-            if (e.target.tagName === 'INPUT') {
-                const el = document.getElementById('login-response');
-                if (el) el.innerHTML = '';
+            if (e.target.classList.contains('auth-input')) clearAuthFeedback(e.target);
+        });
+
+        document.addEventListener('focusin', function (e) {
+            if (e.target.classList.contains('auth-input')) {
+                e.target.classList.remove('error-field');
             }
         });
     </script>

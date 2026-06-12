@@ -3,6 +3,60 @@
 .htmx-request .htmx-indicator,
 .htmx-request.htmx-indicator { display: inline-block !important; }
 
+/* Auth feedback */
+.auth-response {
+    min-height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    line-height: 1.35;
+}
+
+.auth-response:empty {
+    display: none;
+}
+
+.auth-response:not(:empty) {
+    display: flex;
+}
+
+.auth-response.is-error {
+    color: #f87171;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.28);
+}
+
+.auth-response.is-success {
+    color: #4ade80;
+    background-color: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.28);
+}
+
+.auth-response-message {
+    width: 100%;
+}
+
+.error-field {
+    border-color: #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12) !important;
+}
+
+.text-danger {
+    color: #f87171 !important;
+    font-weight: 500;
+}
+
+.text-success {
+    color: #4ade80 !important;
+    font-weight: 500;
+}
+
+.auth-response.is-error .text-danger,
+.auth-response.is-success .text-success {
+    color: inherit !important;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     .auth-card { padding: 22px 18px 20px; }
@@ -10,4 +64,3 @@
     .auth-social-row { gap: 8px; }
     .btn-social { font-size: 0.76rem; padding: 8px 8px; }
 }
-
