@@ -5,6 +5,7 @@ import logging
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from services.audio_download_service import (
@@ -50,9 +51,26 @@ async def generate_note(
                 background=background_tasks,
             )
 
+        # 2. Cache check — skip the entire pipeline if this link was already processed.
+        #    Query the Notes table by youtube_link before any expensive I/O.
+        existing_note = await db.scalar(
+            select(Notes).where(Notes.youtube_link == link).limit(1)
+        )
+        if existing_note:
+            logger.info("Cache hit for link=%s — returning saved note.", link)
+            return templates.TemplateResponse(
+                request,
+                "partials/blog_result.html",
+                {
+                    "title": existing_note.title or "YouTube Notes",
+                    "note_content": existing_note.content,
+                },
+                background=background_tasks,
+            )
+
         loop = asyncio.get_running_loop()
 
-        # 2. Download audio and reuse the same metadata for the title.
+        # 3. Download audio and reuse the same metadata for the title.
         download = await loop.run_in_executor(None, download_audio_with_metadata, link)
         if not download:
             return HTMLResponse(
@@ -62,7 +80,7 @@ async def generate_note(
         file_path = download.file_path
         title = download.title
 
-        # 3. Transcribe
+        # 4. Transcribe
         transcription: str = await loop.run_in_executor(
             None, transcribe_audio_whisper, file_path
         )
@@ -72,7 +90,7 @@ async def generate_note(
                 background=background_tasks,
             )
 
-        # 4. Generate Note
+        # 5. Generate Note
         note_content = await loop.run_in_executor(
             None, generate_note_from_transcription, transcription
         )
@@ -83,14 +101,14 @@ async def generate_note(
             )
         background_tasks.add_task(save_transcription_text, transcription, title)
 
-        # 5. Save to db (Saving raw markdown)
-        note = Notes(youtube_link=link, content=note_content)
+        # 6. Save to db (Saving raw markdown + title for future cache hits)
+        note = Notes(youtube_link=link, title=title, content=note_content)
 
         db.add(note)
         await db.commit()
         await db.refresh(note)
 
-        # 6. Return template with raw markdown
+        # 7. Return template with raw markdown
         return templates.TemplateResponse(
             request,
             "partials/blog_result.html",

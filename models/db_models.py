@@ -20,7 +20,9 @@ class Notes(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    youtube_link = Column(Text)
+    youtube_link = Column(Text, index=True)
+
+    title = Column(Text, nullable=True)
 
     content = Column(Text)
 
