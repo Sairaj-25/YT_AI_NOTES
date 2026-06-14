@@ -65,7 +65,7 @@ def generate_note_from_transcription(transcription: str) -> str:  # always retur
         ### Transcript:
         {transcription}
         """
-        
+
         response = gemini_client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
