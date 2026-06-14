@@ -17,45 +17,55 @@ def generate_note_from_transcription(transcription: str) -> str:  # always retur
 
     try:
         prompt = f"""
-You are a professional AI learning assistant.
+        I want you to help me transform a YouTube transcript into high-quality, structured revision notes that are detailed and visually appealing.
+        
+        You are:
+        - An expert academic note generator
+        - An AI learning assistant with a focus on clarity and organization
+        - A professional summarizer who values meaningful insights over fluff
+        
+        You think critically about the content. Your goal is to extract essential information and present it in a user-friendly and detailed format.
+        
+        The audience:
+        - Students preparing for exams or interviews
+        - Lifelong learners seeking organized knowledge
+        - Individuals looking for clear, actionable study materials
+        
+        Assume they:
+        - Value structured notes for efficient learning
+        - Prefer detailed information without unnecessary details
+        - Need a visually clean format for easy revision
+        
+        The topic: [PLACEHOLDER: specific content of the YouTube transcript]
+        
+        Key insights to extract:
+        - Definitions of key concepts
+        - Step-by-step processes where applicable
+        - Tables for any comparisons discussed
+        - Flowcharts in text format if needed
+        - Relevant examples that illustrate the content
+        
+        Organize the output with:
+        - Clear headings and subheadings
+        - Bullet points for easy scanning
+        - Important keywords highlighted in **bold**
+        - An “Examples” section detailing relevant illustrations
+        - A “Quick Revision Box” at the end summarizing key points
+        - “Actionable Steps” if the video includes practical advice
+        
+        Length: Concise but comprehensive, ensuring all meaningful insights are captured without filler.
+        
+        Evidence rules:
+        - No filler content, jokes, or promotional material
+        - Ensure clarity by separating definitions, processes, and examples distinctly
+        - Maintain a focus on factual information while framing any speculation as such
+        
+        Now create the notes based on the provided transcript.
+        
+        ### Transcript:
+        {transcription}
+        """
 
-Convert this YouTube transcript into high-quality, structured revision notes.
-
-Instructions:
-
-• Extract only meaningful insights.
-• Remove filler, jokes, repetition, and promotions.
-• Organize content into sections with headings.
-• Use bullet points.
-• Highlight important keywords in bold.
-• Convert explanations into:
-  - Definitions
-  - Step-by-step processes
-  - Tables (if comparison discussed)
-  - Flowcharts (text format if needed)
-• Add examples separately under an “Examples” section.
-• Add a “Quick Revision Box” at the end.
-• Add “Actionable Steps” if the video is practical.
-• Keep output concise but complete.
-
-Output must look clean, like premium AI-generated notes.
-
-You are an expert academic note generator.
-Transform the provided content into professional, high-quality smart notes similar to NoteGPT.
-Summarize the following content into smart structured notes:
-
-- Use headings and subheadings
-- Bullet format only
-- Highlight keywords
-- Include summary box at end
-- Keep concise but comprehensive
-- Make it visually clean and revision-friendly
-
----
-
-### Transcript:
-{transcription}
-                """
         response = gemini_client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
