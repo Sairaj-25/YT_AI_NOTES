@@ -17,6 +17,7 @@ from services.audio_transcribe_service import (
     transcription_succeeded,
 )
 from services.generate_notes_service import generate_note_from_transcription
+from services.youtube_url_service import normalize_youtube_url
 from services.transcription_output_service import save_transcription_text
 
 from models.db_models import Notes
@@ -50,6 +51,10 @@ async def generate_note(
                 "<div class='text-danger'>Youtube link is required.</div>",
                 background=background_tasks,
             )
+
+        # 1b. Normalise the URL so that youtu.be/X, watch?v=X, /shorts/X, etc.
+        #     all map to the same canonical key: https://www.youtube.com/watch?v=X
+        link = normalize_youtube_url(link)
 
         # 2. Cache check — skip the entire pipeline if this link was already processed.
         #    Query the Notes table by youtube_link before any expensive I/O.
