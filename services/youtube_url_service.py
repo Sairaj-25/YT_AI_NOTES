@@ -25,9 +25,7 @@ from urllib.parse import parse_qs, urlparse
 logger = logging.getLogger(__name__)
 
 # Matches paths like  /shorts/<id>  /embed/<id>  /v/<id>
-_PATH_VIDEO_ID_RE = re.compile(
-    r"^/(?:shorts|embed|v|e)/([A-Za-z0-9_-]{11})"
-)
+_PATH_VIDEO_ID_RE = re.compile(r"^/(?:shorts|embed|v|e)/([A-Za-z0-9_-]{11})")
 
 # Matches  youtu.be/<id>
 _YOUTU_BE_RE = re.compile(r"^([A-Za-z0-9_-]{11})")
@@ -51,9 +49,8 @@ def extract_video_id(url: str) -> str | None:
     hostname = parsed.hostname or ""
     hostname = hostname.removeprefix("www.").removeprefix("m.")
 
-
     # youtu.be short links
-    
+
     if hostname == "youtu.be":
         # Path is  /<VIDEO_ID>
         path_segment = parsed.path.lstrip("/")
@@ -61,9 +58,8 @@ def extract_video_id(url: str) -> str | None:
         if m and _VIDEO_ID_RE.match(m.group(1)):
             return m.group(1)
 
-    
     # youtube.com variants
-    
+
     if hostname in ("youtube.com", "youtube-nocookie.com"):
         # /shorts/<id>  /embed/<id>  /v/<id>  /e/<id>
         m = _PATH_VIDEO_ID_RE.match(parsed.path)
@@ -89,12 +85,8 @@ def normalize_youtube_url(url: str) -> str:
     if video_id:
         canonical = f"https://www.youtube.com/watch?v={video_id}"
         if canonical != url.strip():
-            logger.debug(
-                "Normalised YouTube URL: %r -> %r", url.strip(), canonical
-            )
+            logger.debug("Normalised YouTube URL: %r -> %r", url.strip(), canonical)
         return canonical
 
-    logger.warning(
-        "Could not extract video ID from URL %r — using URL as-is.", url
-    )
+    logger.warning("Could not extract video ID from URL %r — using URL as-is.", url)
     return url.strip()
