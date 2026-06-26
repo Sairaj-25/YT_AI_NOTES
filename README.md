@@ -5,6 +5,30 @@
 YT-AI-Notes is a Fastapi web application that takes any YouTube video URL, extracts and transcribes its audio, and uses Google's Gemini AI to produce professional, well-structured study notes or articles.
 
 ---
+## 🖼️ Application Preview
+
+
+---
+
+### 1. 🔐 Login Page
+
+![Login Page](media/README_images/login.png)
+
+---
+
+### 2. 🏠 Homepage
+
+![Home Page](media/README_images/homepage.png)
+
+---
+
+### 3. 📝 Sample Output
+
+![Output](media/README_images/note_output.png)
+
+---
+
+---
 
 ## 🎯 How It Works
 
