@@ -26,7 +26,11 @@ def normalize_callback_url(value: str) -> str:
         return ""
 
     normalized = value.strip()
-    if len(normalized) >= 2 and normalized[0] == normalized[-1] and normalized[0] in {'"', "'"}:
+    if (
+        len(normalized) >= 2
+        and normalized[0] == normalized[-1]
+        and normalized[0] in {'"', "'"}
+    ):
         normalized = normalized[1:-1].strip()
 
     return normalized

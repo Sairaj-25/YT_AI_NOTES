@@ -42,6 +42,7 @@ def auth_message_html(kind: str, title: str, detail: str) -> str:
 # Solution: embed a self-verifiable HMAC signature inside the state param itself.
 # ---------------------------------------------------------------------------
 
+
 def make_state(secret: str) -> str:
     """Return a self-verifying state token: <nonce>.<timestamp>.<hmac>"""
     nonce = secrets.token_urlsafe(16)
@@ -119,7 +120,9 @@ async def login(
         )
     except HTTPException:
         return HTMLResponse(
-            content=auth_message_html("danger", "Login failed:", "Invalid email or password."),
+            content=auth_message_html(
+                "danger", "Login failed:", "Invalid email or password."
+            ),
             status_code=401,
         )
     except Exception:
@@ -137,12 +140,14 @@ async def github_login(request: Request):
     redirect_uri = build_github_redirect_uri(request, settings.GITHUB_CALLBACK_URL)
     state = make_state(settings.SESSION_SECRET_KEY)
 
-    params = urlencode({
-        "client_id": settings.GITHUB_CLIENT_ID,
-        "redirect_uri": redirect_uri,
-        "scope": "read:user user:email",
-        "state": state,
-    })
+    params = urlencode(
+        {
+            "client_id": settings.GITHUB_CLIENT_ID,
+            "redirect_uri": redirect_uri,
+            "scope": "read:user user:email",
+            "state": state,
+        }
+    )
     auth_url = f"https://github.com/login/oauth/authorize?{params}"
     logger.info("Initiating GitHub OAuth with redirect_uri=%s", redirect_uri)
     return RedirectResponse(auth_url, status_code=302)
@@ -173,7 +178,9 @@ async def github_callback(
             )
 
         if not code:
-            raise OAuthError(error="missing_code", description="No authorization code received.")
+            raise OAuthError(
+                error="missing_code", description="No authorization code received."
+            )
 
         redirect_uri = build_github_redirect_uri(request, settings.GITHUB_CALLBACK_URL)
 
