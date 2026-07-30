@@ -68,9 +68,76 @@ async def authenticate_user(db: AsyncSession, login: UserLogin) -> User:
     user = await db.merge(result)
 
     # verify password
-    if not verify_password(login.password, user.password):
+    if not user.password or not verify_password(login.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         )
+
+    return user
+
+
+def pick_github_email(profile: dict, emails: list[dict]) -> str:
+    if profile.get("email"):
+        return profile["email"]
+
+    for email in emails:
+        if email.get("primary") and email.get("verified"):
+            return email["email"]
+
+    for email in emails:
+        if email.get("verified"):
+            return email["email"]
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="GitHub account has no verified email address.",
+    )
+
+
+async def get_or_create_github_user(
+    db: AsyncSession,
+    profile: dict,
+    emails: list[dict],
+) -> User:
+    github_id = str(profile["id"])
+    email = pick_github_email(profile, emails)
+    name = profile.get("name") or profile.get("login") or email.split("@")[0]
+    avatar_url = profile.get("avatar_url")
+
+    result = await db.execute(select(User).where(User.github_id == github_id))
+    user = result.scalars().first()
+
+    if user:
+        user.email = email
+        user.name = name
+        user.avatar_url = avatar_url
+        user.auth_provider = user.auth_provider or "github"
+        await db.commit()
+        await db.refresh(user)
+        return user
+
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalars().first()
+
+    if user:
+        user.github_id = github_id
+        user.avatar_url = avatar_url
+        user.auth_provider = user.auth_provider or "local"
+        await db.commit()
+        await db.refresh(user)
+        return user
+
+    user = User(
+        name=name,
+        email=email,
+        password=None,
+        github_id=github_id,
+        avatar_url=avatar_url,
+        auth_provider="github",
+    )
+
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
 
     return user

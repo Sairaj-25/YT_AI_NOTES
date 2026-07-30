@@ -19,7 +19,7 @@ class AudioDownload:
     title: str
 
 
-def _downloaded_file_path(info: dict, ydl: YoutubeDL) -> str | None:
+def downloaded_file_path(info: dict, ydl: YoutubeDL) -> str | None:
     requested_downloads = info.get("requested_downloads") or []
     for download in requested_downloads:
         file_path = download.get("filepath")
@@ -39,7 +39,7 @@ def download_audio_with_metadata(link: str) -> AudioDownload | None:
         }
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(link, download=True)
-            file_path = _downloaded_file_path(info, ydl)
+            file_path = downloaded_file_path(info, ydl)
             if not file_path:
                 return None
 
