@@ -43,14 +43,11 @@ app = FastAPI(
 # Sessions (cockie-based)
 app.add_middleware(
     SessionMiddleware,
-    secret_key=getattr(
-        settings,
-        "SESSION_SECRET_KEY",
-        getattr(settings, "SECRET_KEY", "session-secret"),
-    ),
-    session_cookie=getattr(settings, "SESSION_COOKIE_NAME", "session"),
+    secret_key=settings.SESSION_SECRET_KEY,
+    session_cookie=settings.SESSION_COOKIE_NAME,
     same_site="lax",
-    https_only=False,  # True in Production with https
+    https_only=settings.SESSION_COOKIE_SECURE,
+    max_age=60 * 60 * 24 * 7,
 )
 
 

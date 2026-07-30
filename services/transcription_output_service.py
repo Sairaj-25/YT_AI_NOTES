@@ -9,7 +9,7 @@ OUTPUT_DIR = BASE_DIR / "output"
 FILENAME_MAX_LENGTH = 180
 
 
-def _safe_transcription_filename(title: str) -> str:
+def safe_transcription_filename(title: str) -> str:
     safe_title = re.sub(r'[<>:"/\\|?*\x00-\x1f]+', "", title).strip()
     safe_title = re.sub(r"\s+", " ", safe_title).rstrip(". ")
     if not safe_title:
@@ -21,7 +21,7 @@ def _safe_transcription_filename(title: str) -> str:
 def save_transcription_text(transcription: str, yt_title: str) -> str | None:
     try:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        output_path = OUTPUT_DIR / _safe_transcription_filename(yt_title)
+        output_path = OUTPUT_DIR / safe_transcription_filename(yt_title)
         output_path.write_text(transcription, encoding="utf-8")
         logger.info("Saved transcription text file: %s", output_path)
         return str(output_path)

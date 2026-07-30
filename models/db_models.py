@@ -7,9 +7,14 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
     password = Column(String)
+
+    # GITHUB_USER
+    github_id = Column(String, unique=True, index=True, nullable=True)
+    avatar_url = Column(String, nullable=True)
+    auth_provider = Column(String, nullable=False, default="local")
 
     # one-to-many relationship: A user can save multiple notes
     notes = relationship("Notes", back_populates="owner")
