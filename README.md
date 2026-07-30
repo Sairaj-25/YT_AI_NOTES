@@ -8,8 +8,6 @@ YT-AI-Notes is a Fastapi web application that takes any YouTube video URL, extra
 ## 🖼️ Application Preview
 
 
----
-
 ### 1. 🔐 Login Page
 
 ![Login Page](media/README_images/login.png)
@@ -28,7 +26,6 @@ YT-AI-Notes is a Fastapi web application that takes any YouTube video URL, extra
 
 ---
 
----
 
 ## 🎯 How It Works
 
@@ -96,63 +93,6 @@ Make sure the following are installed before you begin:
 
   # Windows — download from https://www.gyan.dev/ffmpeg/builds/ and add to PATH
   ```
-
----
-
-## 📦 Installation & Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Sairaj-25/yt-ai-Notes.git
-cd yt-ai-Notes
-```
-
-### 2. Create & Activate a Virtual Environment
-
-```bash
-uv venv
-```
-
-```bash
-# macOS / Linux
-source .venv/bin/activate
-
-# Windows
-.venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-
-```bash
-uv pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-
-Create a `.env` file in the root directory (next to `manage.py`):
-
-```env
-GEMINI_API_KEY="your_google_gemini_api_key_here"
-Fastapi_SECRET_KEY="your_secure_Fastapi_secret_key_here"
-```
-
-> ⚠️ Never commit your `.env` file. It is already listed in `.gitignore`.
-
-### 5. Apply Database Migrations
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### 6. Start the Development Server
-
-```bash
-python manage.py runserver
-```
-
-Visit **http://127.0.0.1:8000/** in your browser.
 
 ---
 
