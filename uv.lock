@@ -2133,7 +2133,7 @@ requires-dist = [
     { name = "pydub", specifier = ">=0.25.1" },
     { name = "sqlalchemy", specifier = ">=2.0.49" },
     { name = "uvicorn", specifier = ">=0.44.0" },
-    { name = "yt-dlp", specifier = ">=2026.3.17" },
+    { name = "yt-dlp", specifier = ">=2026.8.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -2145,9 +2145,9 @@ dev = [
 
 [[package]]
 name = "yt-dlp"
-version = "2026.3.17"
+version = "2026.8.18.122307.dev0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/8b/34/7c6b4e3f89cb6416d2cd7ab6dab141a1df97ab0fb22d15816db2c92148c9/yt_dlp-2026.3.17.tar.gz", hash = "sha256:ba7aa31d533f1ffccfe70e421596d7ca8ff0bf1398dc6bb658b7d9dec057d2c9", size = 3119221, upload-time = "2026-03-17T23:43:00.244Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/b4/174e7d838db1c584f9332e1fe9a5f61a2ffda8a349fa27db85f7620d6da9/yt_dlp-2026.8.18.122307.dev0.tar.gz", hash = "sha256:463ce6b4bd05ab8c4eb24753f4144e73efbba4d5abe5ef256a9827e778b26b90", size = 3052223, upload-time = "2026-08-18T12:27:02.69Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cd/13/5093bcb954878e50f7217fd2ab94282b53934022e4e4a03265582da83bf5/yt_dlp-2026.3.17-py3-none-any.whl", hash = "sha256:32992db94303a8a5d211a183f2174834fe7f8c29d83ed2e7a324eae97a8f26d8", size = 3315134, upload-time = "2026-03-17T23:42:57.863Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/d4/3f4573723f4705a4c11843fb5c351369136abc30f1d2f2f48a67b75a0642/yt_dlp-2026.8.18.122307.dev0-py3-none-any.whl", hash = "sha256:4cd97a5adaa4aaec38a370aea644b7e96002c530b581eb470a1ea81d6eb9e22b", size = 3185937, upload-time = "2026-08-18T12:27:00.244Z" },
 ]

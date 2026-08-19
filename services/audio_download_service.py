@@ -8,7 +8,7 @@ from yt_dlp import YoutubeDL
 logger = logging.getLogger(__name__)
 
 MEDIA_ROOT = "media"
-AUDIO_FORMAT = "bestaudio[ext=wav]/worstaudio/worst"
+
 
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 
@@ -32,10 +32,14 @@ def downloaded_file_path(info: dict, ydl: YoutubeDL) -> str | None:
 def download_audio_with_metadata(link: str) -> AudioDownload | None:
     try:
         ydl_opts = {
-            "format": AUDIO_FORMAT,
+            # m4a (AAC) and webm (Opus) are the only audio formats YouTube serves.
+            # faster-whisper accepts both directly — no WAV conversion needed.
+            "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
             "outtmpl": os.path.join(MEDIA_ROOT, "%(title)s.%(ext)s"),
             "noplaylist": True,
             "quiet": True,
+            "retries": 5,
+            "fragment_retries": 5,
         }
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(link, download=True)
