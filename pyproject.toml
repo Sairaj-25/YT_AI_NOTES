@@ -19,7 +19,7 @@ dependencies = [
     "pydub>=0.25.1",
     "sqlalchemy>=2.0.49",
     "uvicorn>=0.44.0",
-    "yt-dlp>=2026.3.17",
+    "yt-dlp>=2026.8.1",
 ]
 
 [dependency-groups]
