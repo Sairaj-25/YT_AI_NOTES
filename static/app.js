@@ -2,8 +2,8 @@
    app.js — YT-AI-Note
    ═══════════════════════════════════════════════════ */
 
-// marked v5+ removed the `highlight` option — configure only valid options
-marked.setOptions({
+// marked v9+ removed setOptions() — use marked.use() for global configuration
+marked.use({
     breaks: true,
     gfm: true,
 });
